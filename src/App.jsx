@@ -1,16 +1,77 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, RotateCcw, Home, Star, Timer, Trophy, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Play, RotateCcw, Home, Star, Timer, Trophy, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 
-// --- 데이터 (8급 기초 한자 예시) ---
-const HANJA_DATA = [
-  { id: 1, char: '日', sound: '날', meaning: '일' },
-  { id: 2, char: '月', sound: '달', meaning: '월' },
-  { id: 3, char: '山', sound: '메', meaning: '산' },
-  { id: 4, char: '川', sound: '내', meaning: '천' },
-  { id: 5, char: '木', sound: '나무', meaning: '목' },
-  { id: 6, char: '火', sound: '불', meaning: '화' },
-  { id: 7, char: '水', sound: '물', meaning: '수' },
-  { id: 8, char: '金', sound: '쇠', meaning: '금' },
+// --- 데이터: 8급 배정한자 (총 50자) ---
+const HANJA_DATA_LEVEL_8 = [
+  // [숫자]
+  { id: 1, char: '一', sound: '한', meaning: '일' },
+  { id: 2, char: '二', sound: '두', meaning: '이' },
+  { id: 3, char: '三', sound: '석', meaning: '삼' },
+  { id: 4, char: '四', sound: '넉', meaning: '사' },
+  { id: 5, char: '五', sound: '다섯', meaning: '오' },
+  { id: 6, char: '六', sound: '여섯', meaning: '육' },
+  { id: 7, char: '七', sound: '일곱', meaning: '칠' },
+  { id: 8, char: '八', sound: '여덟', meaning: '팔' },
+  { id: 9, char: '九', sound: '아홉', meaning: '구' },
+  { id: 10, char: '十', sound: '열', meaning: '십' },
+  { id: 11, char: '萬', sound: '일만', meaning: '만' },
+
+  // [요일/자연]
+  { id: 12, char: '日', sound: '날', meaning: '일' },
+  { id: 13, char: '月', sound: '달', meaning: '월' },
+  { id: 14, char: '火', sound: '불', meaning: '화' },
+  { id: 15, char: '水', sound: '물', meaning: '수' },
+  { id: 16, char: '木', sound: '나무', meaning: '목' },
+  { id: 17, char: '金', sound: '쇠', meaning: '금' },
+  { id: 18, char: '土', sound: '흙', meaning: '토' },
+  { id: 19, char: '山', sound: '메', meaning: '산' },
+
+  // [방향/위치/크기]
+  { id: 20, char: '東', sound: '동녘', meaning: '동' },
+  { id: 21, char: '西', sound: '서녘', meaning: '서' },
+  { id: 22, char: '南', sound: '남녘', meaning: '남' },
+  { id: 23, char: '北', sound: '북녘', meaning: '북' },
+  { id: 24, char: '大', sound: '큰', meaning: '대' },
+  { id: 25, char: '小', sound: '작은', meaning: '소' },
+  { id: 26, char: '中', sound: '가운데', meaning: '중' },
+  { id: 27, char: '外', sound: '바깥', meaning: '외' },
+
+  // [가족/사람]
+  { id: 28, char: '人', sound: '사람', meaning: '인' },
+  { id: 29, char: '父', sound: '아비', meaning: '부' },
+  { id: 30, char: '母', sound: '어미', meaning: '모' },
+  { id: 31, char: '兄', sound: '맏', meaning: '형' },
+  { id: 32, char: '弟', sound: '아우', meaning: '제' },
+  { id: 33, char: '女', sound: '계집', meaning: '녀' },
+  { id: 34, char: '民', sound: '백성', meaning: '민' },
+
+  // [학교/교육]
+  { id: 35, char: '學', sound: '배울', meaning: '학' },
+  { id: 36, char: '校', sound: '학교', meaning: '교' },
+  { id: 37, char: '先', sound: '먼저', meaning: '선' },
+  { id: 38, char: '生', sound: '날', meaning: '생' },
+  { id: 39, char: '敎', sound: '가르칠', meaning: '교' },
+  { id: 40, char: '室', sound: '집', meaning: '실' },
+  { id: 41, char: '門', sound: '문', meaning: '문' },
+
+  // [국가/사회]
+  { id: 42, char: '國', sound: '나라', meaning: '국' },
+  { id: 43, char: '軍', sound: '군사', meaning: '군' },
+  { id: 44, char: '王', sound: '임금', meaning: '왕' },
+  { id: 45, char: '韓', sound: '나라', meaning: '한' },
+
+  // [기타 기초]
+  { id: 46, char: '年', sound: '해', meaning: '년' },
+  { id: 47, char: '白', sound: '흰', meaning: '백' },
+  { id: 48, char: '靑', sound: '푸를', meaning: '청' },
+  { id: 49, char: '長', sound: '길', meaning: '장' },
+  { id: 50, char: '寸', sound: '마디', meaning: '촌' },
+];
+
+// 레벨 목록 정의
+const LEVELS = [
+  { id: 8, label: '8급', data: HANJA_DATA_LEVEL_8, color: 'yellow' },
+  { id: 7, label: '7급', data: [], color: 'gray', locked: true }, // 추후 추가 예정
 ];
 
 // --- 유틸리티: Hanzi Writer 스크립트 로드 ---
@@ -33,19 +94,45 @@ const useHanziWriterScript = () => {
 };
 
 // --- 컴포넌트: 메인 화면 ---
-const MainMenu = ({ onStartPractice, onStartGame }) => (
-  <div className="flex flex-col items-center justify-center h-full space-y-8 animate-fade-in p-6">
-    <div className="text-center space-y-2 mb-4">
-      <div className="inline-block bg-yellow-300 rounded-full px-6 py-2 mb-2 shadow-sm transform -rotate-2">
-        <span className="text-yellow-800 font-bold text-lg">초등 필수 8급</span>
-      </div>
+const MainMenu = ({ onStartPractice, onStartGame, currentLevel, onSelectLevel }) => (
+  <div className="flex flex-col items-center h-full animate-fade-in p-6 overflow-y-auto">
+    {/* 타이틀 영역 */}
+    <div className="text-center space-y-2 mt-4 mb-8">
       <h1 className="text-6xl font-black text-blue-600 tracking-tighter drop-shadow-sm stroke-text">
         한자<br/>척척박사
       </h1>
-      <p className="text-xl text-gray-500 font-bold mt-4">재미있게 배우고 신나게 놀자!</p>
+      <p className="text-xl text-gray-500 font-bold mt-2">재미있게 배우고 신나게 놀자!</p>
     </div>
     
-    <div className="grid grid-cols-1 gap-5 w-full">
+    {/* 급수 선택 영역 */}
+    <div className="w-full mb-8">
+      <h3 className="text-lg font-bold text-gray-600 mb-3 text-center">급수를 선택하세요</h3>
+      <div className="flex justify-center gap-3">
+        {LEVELS.map((level) => (
+          <button
+            key={level.id}
+            onClick={() => !level.locked && onSelectLevel(level.id)}
+            disabled={level.locked}
+            className={`
+              relative px-6 py-3 rounded-2xl font-black text-xl transition-all duration-200 shadow-md flex items-center gap-2
+              ${currentLevel === level.id 
+                ? 'bg-yellow-400 text-white ring-4 ring-yellow-200 scale-105 z-10' 
+                : level.locked 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  : 'bg-white text-gray-600 hover:bg-yellow-50 hover:scale-105'
+              }
+            `}
+          >
+            {level.label}
+            {currentLevel === level.id && <CheckCircle size={20} className="text-white" />}
+            {level.locked && <span className="text-xs font-normal absolute bottom-1 right-0 left-0 text-center text-gray-400">준비중</span>}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* 활동 선택 버튼 */}
+    <div className="grid grid-cols-1 gap-5 w-full flex-1 content-start">
       <button 
         onClick={onStartPractice}
         className="group relative bg-white border-b-8 border-blue-200 rounded-3xl p-6 hover:bg-blue-50 hover:border-blue-300 hover:translate-y-1 active:border-b-0 active:translate-y-2 transition-all duration-150 shadow-lg flex items-center gap-6"
@@ -76,16 +163,16 @@ const MainMenu = ({ onStartPractice, onStartGame }) => (
 );
 
 // --- 컴포넌트: 쓰기 연습 모드 ---
-const PracticeMode = ({ onBack, isScriptLoaded }) => {
+const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const writerRef = useRef(null);
   const containerRef = useRef(null);
   const [feedback, setFeedback] = useState("");
 
-  const currentHanja = HANJA_DATA[currentIndex];
+  const currentHanja = data[currentIndex];
 
   useEffect(() => {
-    if (!isScriptLoaded || !containerRef.current) return;
+    if (!isScriptLoaded || !containerRef.current || !currentHanja) return;
 
     containerRef.current.innerHTML = '';
 
@@ -116,10 +203,10 @@ const PracticeMode = ({ onBack, isScriptLoaded }) => {
       }
     });
 
-  }, [currentIndex, isScriptLoaded, currentHanja.char]);
+  }, [currentIndex, isScriptLoaded, currentHanja]);
 
   const handleNext = () => {
-    if (currentIndex < HANJA_DATA.length - 1) {
+    if (currentIndex < data.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setFeedback("");
     }
@@ -138,6 +225,8 @@ const PracticeMode = ({ onBack, isScriptLoaded }) => {
     writerRef.current?.quiz();
   };
 
+  if (!currentHanja) return <div>데이터가 없습니다.</div>;
+
   return (
     <div className="flex flex-col h-full bg-blue-50 animate-fade-in relative">
       {/* 헤더 */}
@@ -146,7 +235,7 @@ const PracticeMode = ({ onBack, isScriptLoaded }) => {
           <Home size={24} />
         </button>
         <span className="text-xl font-bold text-blue-600 bg-blue-50 px-4 py-1 rounded-full">
-          {currentIndex + 1} <span className="text-blue-300">/</span> {HANJA_DATA.length}
+          {currentIndex + 1} <span className="text-blue-300">/</span> {data.length}
         </span>
         <div className="w-10"></div>
       </div>
@@ -202,8 +291,8 @@ const PracticeMode = ({ onBack, isScriptLoaded }) => {
         </button>
         <button 
           onClick={handleNext}
-          disabled={currentIndex === HANJA_DATA.length - 1}
-          className={`p-4 rounded-full shadow-lg transition-all ${currentIndex === HANJA_DATA.length - 1 ? 'bg-gray-200 text-gray-400' : 'bg-blue-500 text-white hover:bg-blue-600 hover:scale-110 active:scale-95'}`}
+          disabled={currentIndex === data.length - 1}
+          className={`p-4 rounded-full shadow-lg transition-all ${currentIndex === data.length - 1 ? 'bg-gray-200 text-gray-400' : 'bg-blue-500 text-white hover:bg-blue-600 hover:scale-110 active:scale-95'}`}
         >
           <ArrowRight size={28} strokeWidth={3} />
         </button>
@@ -213,8 +302,8 @@ const PracticeMode = ({ onBack, isScriptLoaded }) => {
 };
 
 // --- 컴포넌트: 게임 모드 ---
-const GameMode = ({ onBack }) => {
-  const GAME_TIME = 40; 
+const GameMode = ({ onBack, data }) => {
+  const GAME_TIME = 60; // 데이터가 많아졌으므로 시간을 조금 더 줌
   const [tiles, setTiles] = useState([]);
   const [selectedTiles, setSelectedTiles] = useState([]);
   const [matchedIds, setMatchedIds] = useState([]);
@@ -223,7 +312,8 @@ const GameMode = ({ onBack }) => {
   const [score, setScore] = useState(0);
 
   const initGame = useCallback(() => {
-    const shuffledHanja = [...HANJA_DATA].sort(() => 0.5 - Math.random()).slice(0, 6);
+    // 50개 중 6개 랜덤 선택
+    const shuffledHanja = [...data].sort(() => 0.5 - Math.random()).slice(0, 6);
     
     let gameTiles = [];
     shuffledHanja.forEach(item => {
@@ -239,7 +329,7 @@ const GameMode = ({ onBack }) => {
     setTimeLeft(GAME_TIME);
     setScore(0);
     setGameState('playing');
-  }, []);
+  }, [data]);
 
   useEffect(() => { initGame(); }, [initGame]);
 
@@ -348,24 +438,25 @@ const GameMode = ({ onBack }) => {
   );
 };
 
-// --- 메인 앱 (레이아웃 수정) ---
+// --- 메인 앱 ---
 export default function App() {
   const [view, setView] = useState('home');
+  const [currentLevel, setCurrentLevel] = useState(8); // 기본값 8급
   const isScriptLoaded = useHanziWriterScript();
+
+  // 현재 레벨에 맞는 데이터 가져오기
+  const getCurrentData = () => {
+    const levelObj = LEVELS.find(l => l.id === currentLevel);
+    return levelObj ? levelObj.data : HANJA_DATA_LEVEL_8;
+  };
 
   return (
     <>
-      {/* 1. 폰트 로드 (Google Fonts - Jua) */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
-        
         body { font-family: 'Jua', sans-serif; }
-        
-        /* 스크롤바 숨기기 (깔끔한 UI) */
         ::-webkit-scrollbar { display: none; }
-        
         .word-break-keep { word-break: keep-all; }
-        
         @keyframes bounce-short {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-5px); }
@@ -373,35 +464,34 @@ export default function App() {
         .animate-bounce-short { animation: bounce-short 0.5s; }
       `}</style>
 
-      {/* 2. 전체 배경 (PC에서 예쁜 패턴 배경) */}
       <div className="min-h-screen w-full flex items-center justify-center bg-yellow-50 overflow-hidden relative">
-        {/* 배경 패턴 (땡땡이) */}
         <div className="absolute inset-0 opacity-10" style={{
             backgroundImage: 'radial-gradient(#F59E0B 2px, transparent 2px)',
             backgroundSize: '24px 24px'
         }}></div>
 
-        {/* 3. 스마트폰 프레임 컨테이너 */}
-        {/* PC: 중앙 정렬 & 그림자 & 둥근 테두리 / 모바일: 꽉 찬 화면 */}
         <div className="w-full h-[100dvh] md:h-[85vh] md:max-w-[420px] bg-white md:rounded-[2.5rem] shadow-2xl overflow-hidden relative md:border-[8px] md:border-white md:ring-8 ring-blue-50/50 flex flex-col transition-all duration-300">
           
-          {/* 앱 콘텐츠 */}
           <div className="flex-1 overflow-hidden relative bg-white">
             {view === 'home' && (
               <MainMenu 
                 onStartPractice={() => setView('practice')} 
                 onStartGame={() => setView('game')} 
+                currentLevel={currentLevel}
+                onSelectLevel={setCurrentLevel}
               />
             )}
             {view === 'practice' && (
               <PracticeMode 
                 onBack={() => setView('home')} 
                 isScriptLoaded={isScriptLoaded}
+                data={getCurrentData()}
               />
             )}
             {view === 'game' && (
               <GameMode 
                 onBack={() => setView('home')} 
+                data={getCurrentData()}
               />
             )}
           </div>
