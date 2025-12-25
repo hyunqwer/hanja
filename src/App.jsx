@@ -332,6 +332,16 @@ const HANJA_LEVEL_5 = [
   { id: 301, char: '後', sound: '뒤', meaning: '후' }
 ];
 
+// 🔴 수정 포인트: 색상 매핑 테이블 추가
+// Tailwind는 동적 클래스(`bg-${color}-400`)를 인식하지 못하므로, 정적 객체로 선언해야 합니다.
+const LEVEL_STYLES = {
+  yellow: { bg: 'bg-yellow-400', text: 'text-white', ring: 'ring-yellow-200' },
+  green: { bg: 'bg-green-400', text: 'text-white', ring: 'ring-green-200' },
+  blue: { bg: 'bg-blue-400', text: 'text-white', ring: 'ring-blue-200' },
+  purple: { bg: 'bg-purple-400', text: 'text-white', ring: 'ring-purple-200' },
+  red: { bg: 'bg-red-400', text: 'text-white', ring: 'ring-red-200' },
+};
+
 // 레벨 목록 정의
 const LEVELS = [
   { id: 8, label: '8급', data: HANJA_LEVEL_8, color: 'yellow', locked: false },
@@ -375,26 +385,32 @@ const MainMenu = ({ onStartPractice, onStartGame, currentLevel, onSelectLevel })
     <div className="w-full mb-8">
       <h3 className="text-lg font-bold text-gray-600 mb-3 text-center">급수를 선택하세요</h3>
       <div className="flex flex-wrap justify-center gap-2">
-        {LEVELS.map((level) => (
-          <button
-            key={level.id}
-            onClick={() => !level.locked && onSelectLevel(level.id)}
-            disabled={level.locked}
-            className={`
-              relative px-4 py-3 rounded-2xl font-black text-lg transition-all duration-200 shadow-md flex items-center gap-2 mb-2
-              ${currentLevel === level.id 
-                ? `bg-${level.color}-400 text-white ring-4 ring-${level.color}-200 scale-105 z-10` 
-                : level.locked 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white text-gray-600 hover:bg-gray-50 hover:scale-105'
-              }
-            `}
-          >
-            {level.label}
-            {currentLevel === level.id && <CheckCircle size={18} className="text-white" />}
-            {level.locked && <span className="text-xs font-normal absolute bottom-1 right-0 left-0 text-center text-gray-400">준비중</span>}
-          </button>
-        ))}
+        {LEVELS.map((level) => {
+          // 🔴 수정 포인트: 스타일 객체 사용
+          // 동적 생성 대신 LEVEL_STYLES에서 직접 클래스를 가져옵니다.
+          const styles = LEVEL_STYLES[level.color];
+          
+          return (
+            <button
+              key={level.id}
+              onClick={() => !level.locked && onSelectLevel(level.id)}
+              disabled={level.locked}
+              className={`
+                relative px-4 py-3 rounded-2xl font-black text-lg transition-all duration-200 shadow-md flex items-center gap-2 mb-2
+                ${currentLevel === level.id 
+                  ? `${styles.bg} ${styles.text} ring-4 ${styles.ring} scale-105 z-10` 
+                  : level.locked 
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'bg-white text-gray-600 hover:bg-gray-50 hover:scale-105'
+                }
+              `}
+            >
+              {level.label}
+              {currentLevel === level.id && <CheckCircle size={18} className="text-white" />}
+              {level.locked && <span className="text-xs font-normal absolute bottom-1 right-0 left-0 text-center text-gray-400">준비중</span>}
+            </button>
+          );
+        })}
       </div>
     </div>
 
