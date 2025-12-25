@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, RotateCcw, Home, Star, Timer, Trophy, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Play, RotateCcw, Home, Star, Timer, Trophy, ArrowRight, ArrowLeft, CheckCircle, Zap } from 'lucide-react';
 
 // --- 데이터: 8급 배정한자 (총 50자) ---
 const HANJA_DATA_LEVEL_8 = [
@@ -68,10 +68,138 @@ const HANJA_DATA_LEVEL_8 = [
   { id: 50, char: '寸', sound: '마디', meaning: '촌' },
 ];
 
+// --- 7급 전체 배정한자 (준7급 + 7급 신규 100자) ---
+const HANJA_DATA_LEVEL_7_FULL = [
+  // ㄱ (14자)
+  { id: 51, char: '家', sound: '집', meaning: '가' },
+  { id: 52, char: '歌', sound: '노래', meaning: '가' },
+  { id: 53, char: '間', sound: '사이', meaning: '간' },
+  { id: 54, char: '江', sound: '강', meaning: '강' },
+  { id: 55, char: '車', sound: '수레', meaning: '차' },
+  { id: 56, char: '工', sound: '장인', meaning: '공' },
+  { id: 57, char: '空', sound: '빌', meaning: '공' },
+  { id: 58, char: '口', sound: '입', meaning: '구' },
+  { id: 59, char: '氣', sound: '기운', meaning: '기' },
+  { id: 60, char: '記', sound: '기록할', meaning: '기' },
+  { id: 61, char: '旗', sound: '기', meaning: '기' },
+  { id: 62, char: '其', sound: '그', meaning: '기' },
+  
+  // ㄴ (5자)
+  { id: 63, char: '男', sound: '사내', meaning: '남' },
+  { id: 64, char: '內', sound: '안', meaning: '내' },
+  { id: 65, char: '農', sound: '농사', meaning: '농' },
+  
+  // ㄷ (9자)
+  { id: 66, char: '答', sound: '대답', meaning: '답' },
+  { id: 67, char: '道', sound: '길', meaning: '도' },
+  { id: 68, char: '冬', sound: '겨울', meaning: '동' },
+  { id: 69, char: '動', sound: '움직일', meaning: '동' },
+  { id: 70, char: '同', sound: '한가지', meaning: '동' },
+  { id: 71, char: '洞', sound: '골', meaning: '동' },
+  { id: 72, char: '登', sound: '오를', meaning: '등' },
+
+  // ㄹ (6자)
+  { id: 73, char: '來', sound: '올', meaning: '래' },
+  { id: 74, char: '力', sound: '힘', meaning: '력' },
+  { id: 75, char: '老', sound: '늙을', meaning: '로' },
+  { id: 76, char: '里', sound: '마을', meaning: '리' },
+  { id: 77, char: '林', sound: '수풀', meaning: '림' },
+  { id: 78, char: '立', sound: '설', meaning: '립' },
+
+  // ㅁ (8자)
+  { id: 79, char: '每', sound: '매양', meaning: '매' },
+  { id: 80, char: '面', sound: '낯', meaning: '면' },
+  { id: 81, char: '名', sound: '이름', meaning: '명' },
+  { id: 82, char: '命', sound: '목숨', meaning: '명' },
+  { id: 83, char: '文', sound: '글월', meaning: '문' },
+  { id: 84, char: '問', sound: '물을', meaning: '문' },
+  { id: 85, char: '物', sound: '물건', meaning: '물' },
+
+  // ㅂ (8자)
+  { id: 86, char: '方', sound: '모', meaning: '방' },
+  { id: 87, char: '百', sound: '일백', meaning: '백' },
+  { id: 88, char: '夫', sound: '지아비', meaning: '부' },
+  { id: 89, char: '不', sound: '아닐', meaning: '부' },
+  
+  // ㅅ (15자)
+  { id: 90, char: '事', sound: '일', meaning: '사' },
+  { id: 91, char: '算', sound: '셈할', meaning: '산' },
+  { id: 92, char: '上', sound: '위', meaning: '상' },
+  { id: 93, char: '色', sound: '빛', meaning: '색' },
+  { id: 94, char: '夕', sound: '저녁', meaning: '석' },
+  { id: 95, char: '姓', sound: '성', meaning: '성' },
+  { id: 96, char: '世', sound: '인간', meaning: '세' },
+  { id: 97, char: '少', sound: '적을', meaning: '소' },
+  { id: 98, char: '所', sound: '바', meaning: '소' },
+  { id: 99, char: '手', sound: '손', meaning: '수' },
+  { id: 100, char: '數', sound: '셈', meaning: '수' },
+  { id: 101, char: '市', sound: '저자', meaning: '시' },
+  { id: 102, char: '時', sound: '때', meaning: '시' },
+  { id: 103, char: '食', sound: '밥', meaning: '식' },
+  { id: 104, char: '植', sound: '심을', meaning: '식' },
+  { id: 105, char: '心', sound: '마음', meaning: '심' },
+
+  // ㅇ (11자)
+  { id: 106, char: '安', sound: '편안', meaning: '안' },
+  { id: 107, char: '語', sound: '말씀', meaning: '어' },
+  { id: 108, char: '然', sound: '그러할', meaning: '연' },
+  { id: 109, char: '午', sound: '낮', meaning: '오' },
+  { id: 110, char: '右', sound: '오른', meaning: '우' },
+  { id: 111, char: '有', sound: '있을', meaning: '유' },
+  { id: 112, char: '育', sound: '기를', meaning: '육' },
+  { id: 113, char: '邑', sound: '고을', meaning: '읍' },
+  { id: 114, char: '入', sound: '들', meaning: '입' },
+
+  // ㅈ (15자)
+  { id: 115, char: '子', sound: '아들', meaning: '자' },
+  { id: 116, char: '字', sound: '글자', meaning: '자' },
+  { id: 117, char: '自', sound: '스스로', meaning: '자' },
+  { id: 118, char: '場', sound: '마당', meaning: '장' },
+  { id: 119, char: '全', sound: '온전', meaning: '전' },
+  { id: 120, char: '前', sound: '앞', meaning: '전' },
+  { id: 121, char: '電', sound: '번개', meaning: '전' },
+  { id: 122, char: '正', sound: '바를', meaning: '정' },
+  { id: 123, char: '祖', sound: '할아비', meaning: '조' },
+  { id: 124, char: '足', sound: '발', meaning: '족' },
+  { id: 125, char: '左', sound: '왼', meaning: '좌' },
+  { id: 126, char: '主', sound: '주인', meaning: '주' },
+  { id: 127, char: '住', sound: '살', meaning: '주' },
+  { id: 128, char: '重', sound: '무거울', meaning: '중' },
+  { id: 129, char: '地', sound: '땅', meaning: '지' },
+  { id: 130, char: '紙', sound: '종이', meaning: '지' },
+  { id: 131, char: '直', sound: '곧을', meaning: '직' },
+
+  // ㅊ (6자)
+  { id: 132, char: '千', sound: '일천', meaning: '천' },
+  { id: 133, char: '川', sound: '내', meaning: '천' },
+  { id: 134, char: '天', sound: '하늘', meaning: '천' },
+  { id: 135, char: '草', sound: '풀', meaning: '초' },
+  { id: 136, char: '村', sound: '마을', meaning: '촌' },
+  { id: 137, char: '秋', sound: '가을', meaning: '추' },
+  { id: 138, char: '春', sound: '봄', meaning: '춘' },
+  { id: 139, char: '出', sound: '날', meaning: '출' },
+
+  // ㅍ (3자)
+  { id: 140, char: '便', sound: '편안', meaning: '편' },
+  { id: 141, char: '平', sound: '평평할', meaning: '평' },
+
+  // ㅎ (10자)
+  { id: 142, char: '下', sound: '아래', meaning: '하' },
+  { id: 143, char: '夏', sound: '여름', meaning: '하' },
+  { id: 144, char: '漢', sound: '한수', meaning: '한' },
+  { id: 145, char: '海', sound: '바다', meaning: '해' },
+  { id: 146, char: '花', sound: '꽃', meaning: '화' },
+  { id: 147, char: '話', sound: '말씀', meaning: '화' },
+  { id: 148, char: '活', sound: '살', meaning: '활' },
+  { id: 149, char: '孝', sound: '효도', meaning: '효' },
+  { id: 150, char: '後', sound: '뒤', meaning: '후' },
+  { id: 151, char: '休', sound: '쉴', meaning: '휴' },
+];
+
 // 레벨 목록 정의
 const LEVELS = [
   { id: 8, label: '8급', data: HANJA_DATA_LEVEL_8, color: 'yellow' },
-  { id: 7, label: '7급', data: [], color: 'gray', locked: true }, // 추후 추가 예정
+  { id: 7, label: '7급', data: HANJA_DATA_LEVEL_7_FULL, color: 'green', locked: false }, // 7급 잠금 해제
 ];
 
 // --- 유틸리티: Hanzi Writer 스크립트 로드 ---
@@ -301,19 +429,50 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
   );
 };
 
-// --- 컴포넌트: 게임 모드 ---
-const GameMode = ({ onBack, data }) => {
-  const GAME_TIME = 60; // 데이터가 많아졌으므로 시간을 조금 더 줌
+// --- 컴포넌트: 게임 모드 (라운드 시스템 & 타임어택) ---
+const GameMode = ({ onBack, data, levelId }) => {
+  // 라운드별 설정
+  const getRoundConfig = (round) => {
+    if (round === 1) return { time: 25, pairs: 6 };
+    if (round === 2) return { time: 20, pairs: 6 };
+    if (round === 3) return { time: 18, pairs: 8 };
+    if (round === 4) return { time: 15, pairs: 8 };
+    if (round >= 5) return { time: 12, pairs: 10 }; // 5라운드 이상은 최고 난이도 유지
+    return { time: 25, pairs: 6 };
+  };
+
+  const [round, setRound] = useState(1);
+  const [maxTime, setMaxTime] = useState(25);
+  const [timeLeft, setTimeLeft] = useState(25);
+  
   const [tiles, setTiles] = useState([]);
   const [selectedTiles, setSelectedTiles] = useState([]);
   const [matchedIds, setMatchedIds] = useState([]);
-  const [timeLeft, setTimeLeft] = useState(GAME_TIME);
-  const [gameState, setGameState] = useState('ready'); 
+  const [gameState, setGameState] = useState('ready'); // ready, playing, clear, won, lost
   const [score, setScore] = useState(0);
+  const [combo, setCombo] = useState(0);
+  const [comboEffect, setComboEffect] = useState(null); // 콤보 이펙트 표시용
 
-  const initGame = useCallback(() => {
-    // 50개 중 6개 랜덤 선택
-    const shuffledHanja = [...data].sort(() => 0.5 - Math.random()).slice(0, 6);
+  // 최고 기록 (로컬 스토리지)
+  const [bestScore, setBestScore] = useState(() => {
+    return parseInt(localStorage.getItem(`hanja-best-score-${levelId}`) || '0');
+  });
+
+  // 라운드 시작
+  const startRound = useCallback((roundNum) => {
+    const config = getRoundConfig(roundNum);
+    setMaxTime(config.time);
+    setTimeLeft(config.time);
+    setRound(roundNum);
+    setMatchedIds([]);
+    setSelectedTiles([]);
+    setCombo(0);
+    setGameState('playing');
+
+    // 카드 생성
+    const pairCount = config.pairs;
+    // 전체 데이터에서 랜덤하게 필요한 쌍만큼 선택
+    const shuffledHanja = [...data].sort(() => 0.5 - Math.random()).slice(0, pairCount);
     
     let gameTiles = [];
     shuffledHanja.forEach(item => {
@@ -321,29 +480,40 @@ const GameMode = ({ onBack, data }) => {
       gameTiles.push({ id: item.id, type: 'meaning', content: `${item.sound} ${item.meaning}`, uniqueId: `${item.id}-m` });
     });
 
+    // 타일 섞기
     gameTiles.sort(() => 0.5 - Math.random());
-
     setTiles(gameTiles);
-    setMatchedIds([]);
-    setSelectedTiles([]);
-    setTimeLeft(GAME_TIME);
-    setScore(0);
-    setGameState('playing');
+
   }, [data]);
 
-  useEffect(() => { initGame(); }, [initGame]);
+  // 첫 시작
+  useEffect(() => {
+    startRound(1);
+  }, [startRound]);
 
+  // 타이머 로직
   useEffect(() => {
     if (gameState !== 'playing') return;
+
     const timer = setInterval(() => {
       setTimeLeft(prev => {
-        if (prev <= 1) { setGameState('lost'); return 0; }
-        return prev - 1;
+        if (prev <= 0.1) { 
+          setGameState('lost'); 
+          // 최고 기록 갱신
+          if (score > bestScore) {
+            setBestScore(score);
+            localStorage.setItem(`hanja-best-score-${levelId}`, score.toString());
+          }
+          return 0; 
+        }
+        return Math.max(0, prev - 0.1); // 0.1초 단위로 부드럽게 감소
       });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [gameState]);
+    }, 100);
 
+    return () => clearInterval(timer);
+  }, [gameState, score, bestScore, levelId]);
+
+  // 타일 클릭 핸들러
   const handleTileClick = (tile) => {
     if (gameState !== 'playing') return;
     if (matchedIds.includes(tile.id)) return;
@@ -354,80 +524,178 @@ const GameMode = ({ onBack, data }) => {
     setSelectedTiles(newSelected);
 
     if (newSelected.length === 2) {
+      // 1. 매칭 성공
       if (newSelected[0].id === newSelected[1].id) {
-        setMatchedIds(prev => [...prev, newSelected[0].id]);
-        setScore(prev => prev + 100 + (timeLeft * 2));
+        const newMatchedIds = [...matchedIds, newSelected[0].id];
+        setMatchedIds(newMatchedIds);
+        
+        // 콤보 계산
+        const newCombo = combo + 1;
+        setCombo(newCombo);
+
+        // 점수 계산 (기본 100 + 콤보 보너스)
+        const baseScore = 100;
+        let multiplier = 1;
+        if (newCombo >= 5) multiplier = 2.0;
+        else if (newCombo >= 3) multiplier = 1.5;
+        else if (newCombo >= 2) multiplier = 1.2;
+        
+        const addScore = Math.floor(baseScore * multiplier);
+        setScore(prev => prev + addScore);
+
+        // 콤보 이펙트 표시
+        if (newCombo >= 2) {
+          setComboEffect(`${newCombo} COMBO! +${addScore}`);
+          setTimeout(() => setComboEffect(null), 800);
+        }
+
         setSelectedTiles([]);
-        if (matchedIds.length + 1 === tiles.length / 2) setGameState('won');
+
+        // 라운드 클리어 체크
+        if (newMatchedIds.length === tiles.length / 2) {
+          // 시간 보너스
+          const timeBonus = Math.floor(timeLeft * 10);
+          setScore(prev => prev + timeBonus);
+          setComboEffect(`CLEAR! +${timeBonus}`);
+          
+          setGameState('clear');
+          
+          // 1.5초 후 다음 라운드
+          setTimeout(() => {
+             startRound(round + 1);
+          }, 1500);
+        }
+
       } else {
-        setTimeout(() => setSelectedTiles([]), 800);
+        // 2. 매칭 실패
+        setCombo(0); // 콤보 초기화
+        setTimeout(() => {
+          setSelectedTiles([]);
+        }, 600);
       }
     }
   };
 
+  // 타임 바 색상 및 퍼센트 계산
+  const timePercent = (timeLeft / maxTime) * 100;
+  let barColor = 'bg-green-500';
+  if (timePercent < 50) barColor = 'bg-yellow-400';
+  if (timePercent < 20) barColor = 'bg-red-500';
+
   return (
     <div className="flex flex-col h-full bg-green-50 animate-fade-in relative">
-      <div className="bg-white p-4 shadow-sm flex items-center justify-between z-10 rounded-b-3xl border-b-4 border-green-100">
-        <button onClick={onBack} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
-          <Home size={20} className="text-gray-600" />
-        </button>
-        <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-           <Timer size={18} className={`text-${timeLeft < 10 ? 'red' : 'green'}-500`} />
-           <span className={`text-xl font-black ${timeLeft < 10 ? 'text-red-500 animate-pulse' : 'text-gray-700'}`}>
-             {timeLeft}s
-           </span>
-        </div>
-        <div className="font-black text-green-600 bg-green-100 px-3 py-1 rounded-full border border-green-200">
-          {score}점
-        </div>
-      </div>
-
-      <div className="flex-1 flex items-center justify-center p-4">
-        <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
-          {tiles.map(tile => {
-            const isSelected = selectedTiles.find(t => t.uniqueId === tile.uniqueId);
-            const isMatched = matchedIds.includes(tile.id);
-            const isHanja = tile.type === 'hanja';
-
-            return (
-              <button
-                key={tile.uniqueId}
-                onClick={() => handleTileClick(tile)}
-                disabled={isMatched}
-                className={`
-                  aspect-square rounded-2xl flex items-center justify-center font-bold shadow-md transition-all duration-300
-                  ${isMatched ? 'opacity-0 scale-50' : 'opacity-100 scale-100'}
-                  ${isSelected 
-                    ? 'bg-yellow-300 text-yellow-900 border-b-0 translate-y-1 shadow-inner' 
-                    : 'bg-white border-b-4 border-green-200 text-gray-700 hover:-translate-y-1 active:border-b-0 active:translate-y-1'
-                  }
-                  ${isHanja ? 'text-4xl font-serif' : 'text-lg word-break-keep leading-tight'}
-                `}
-              >
-                {tile.content}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {(gameState === 'won' || gameState === 'lost') && (
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-6 animate-fade-in">
-          <div className="bg-white rounded-[2rem] p-8 w-full max-w-xs text-center shadow-2xl border-8 border-yellow-300 transform transition-all scale-105">
-            <div className="text-7xl mb-4 animate-bounce">
-              {gameState === 'won' ? '🎉' : '⏰'}
+      {/* 상단 UI (라운드 / 타임바 / 점수) */}
+      <div className="bg-white p-3 shadow-md z-10 rounded-b-3xl border-b-4 border-green-100 space-y-2">
+        {/* 상단: 홈 / 라운드 / 점수 */}
+        <div className="flex items-center justify-between">
+            <button onClick={onBack} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
+              <Home size={20} className="text-gray-600" />
+            </button>
+            
+            <div className="flex flex-col items-center">
+               <span className="text-xs font-bold text-gray-400">ROUND</span>
+               <span className="text-2xl font-black text-blue-600 leading-none">{round}</span>
             </div>
-            <h2 className="text-3xl font-black text-gray-800 mb-2">
-              {gameState === 'won' ? '대단해요!' : '시간 초과!'}
+
+            <div className="flex flex-col items-end">
+               <span className="text-xs font-bold text-gray-400">SCORE</span>
+               <span className="text-2xl font-black text-green-600 leading-none">{score}</span>
+            </div>
+        </div>
+
+        {/* 타임 바 */}
+        <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden relative shadow-inner">
+           <div 
+             className={`h-full transition-all duration-100 ease-linear ${barColor} ${timePercent < 20 ? 'animate-pulse' : ''}`}
+             style={{ width: `${timePercent}%` }}
+           ></div>
+        </div>
+      </div>
+
+      {/* 콤보 이펙트 (중앙) */}
+      {comboEffect && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50 animate-bounce-short">
+          <div className="text-4xl font-black text-yellow-500 drop-shadow-lg stroke-text-white whitespace-nowrap">
+            {comboEffect}
+          </div>
+        </div>
+      )}
+
+      {/* 게임 그리드 */}
+      <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+        {/* 라운드 클리어 메시지 */}
+        {gameState === 'clear' ? (
+           <div className="text-center animate-bounce-short">
+             <div className="text-6xl mb-2">🎉</div>
+             <h2 className="text-4xl font-black text-green-600">ROUND {round} CLEAR!</h2>
+             <p className="text-gray-500 font-bold">다음 라운드로 이동합니다...</p>
+           </div>
+        ) : (
+          <div className={`grid gap-3 w-full max-w-sm ${tiles.length > 12 ? 'grid-cols-4' : 'grid-cols-3'}`}>
+            {tiles.map(tile => {
+              const isSelected = selectedTiles.find(t => t.uniqueId === tile.uniqueId);
+              const isMatched = matchedIds.includes(tile.id);
+              const isHanja = tile.type === 'hanja';
+
+              return (
+                <button
+                  key={tile.uniqueId}
+                  onClick={() => handleTileClick(tile)}
+                  disabled={isMatched}
+                  className={`
+                    aspect-square rounded-xl flex items-center justify-center font-bold shadow-md transition-all duration-200
+                    ${isMatched ? 'opacity-0 scale-50' : 'opacity-100 scale-100'}
+                    ${isSelected 
+                      ? 'bg-yellow-300 text-yellow-900 border-b-0 translate-y-1 shadow-inner ring-4 ring-yellow-200' 
+                      : 'bg-white border-b-4 border-green-200 text-gray-700 hover:-translate-y-1 active:border-b-0 active:translate-y-1'
+                    }
+                    ${isHanja ? (tiles.length > 12 ? 'text-2xl' : 'text-4xl') : (tiles.length > 12 ? 'text-sm' : 'text-lg')} 
+                    ${isHanja ? 'font-serif' : 'word-break-keep leading-tight'}
+                  `}
+                >
+                  {tile.content}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* 게임 오버 결과 화면 */}
+      {(gameState === 'lost') && (
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6 animate-fade-in">
+          <div className="bg-white rounded-[2rem] p-8 w-full max-w-xs text-center shadow-2xl border-8 border-yellow-400 transform transition-all scale-105">
+            <div className="text-7xl mb-4 animate-bounce">
+              ⏰
+            </div>
+            <h2 className="text-3xl font-black text-gray-800 mb-1">
+              시간 초과!
             </h2>
-            <p className="text-gray-500 mb-8 font-bold text-lg">
-              {gameState === 'won' ? `+${score}점 획득!` : '다시 도전해볼까요?'}
+            <div className="bg-yellow-50 rounded-xl p-4 mb-6 mt-4">
+               <p className="text-gray-500 font-bold text-sm mb-1">최종 도달</p>
+               <p className="text-4xl font-black text-blue-600 mb-4">ROUND {round}</p>
+               
+               <div className="h-px bg-gray-200 mb-4"></div>
+               
+               <p className="text-gray-500 font-bold text-sm mb-1">이번 점수</p>
+               <p className="text-3xl font-black text-gray-800">{score}점</p>
+               
+               {score >= bestScore && score > 0 && (
+                 <div className="mt-2 inline-block bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-bold animate-pulse">
+                   🎉 최고 기록 갱신!
+                 </div>
+               )}
+            </div>
+            
+            <p className="text-green-600 font-bold mb-6 text-sm">
+               "다음엔 ROUND {round + 1}까지 가볼까요?"
             </p>
+            
             <div className="grid grid-cols-2 gap-3">
               <button onClick={onBack} className="bg-gray-100 text-gray-600 py-3 rounded-2xl font-bold hover:bg-gray-200">
                 나가기
               </button>
-              <button onClick={initGame} className="bg-yellow-400 text-white py-3 rounded-2xl font-bold hover:bg-yellow-500 shadow-md border-b-4 border-yellow-500 active:border-b-0 active:translate-y-1">
+              <button onClick={() => startRound(1)} className="bg-yellow-400 text-white py-3 rounded-2xl font-bold hover:bg-yellow-500 shadow-md border-b-4 border-yellow-500 active:border-b-0 active:translate-y-1">
                 다시 하기
               </button>
             </div>
@@ -457,6 +725,8 @@ export default function App() {
         body { font-family: 'Jua', sans-serif; }
         ::-webkit-scrollbar { display: none; }
         .word-break-keep { word-break: keep-all; }
+        .stroke-text { -webkit-text-stroke: 1px white; }
+        .stroke-text-white { -webkit-text-stroke: 2px white; }
         @keyframes bounce-short {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-5px); }
@@ -492,6 +762,7 @@ export default function App() {
               <GameMode 
                 onBack={() => setView('home')} 
                 data={getCurrentData()}
+                levelId={currentLevel}
               />
             )}
           </div>
