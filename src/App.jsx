@@ -208,13 +208,9 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     const userAnswer = answerBlocks.map(b => b.text).join('');
     
     if (userAnswer === currentWord.reading) {
-      // 정답!
       setGameState('correct');
       setScore(prev => prev + 100 + Math.ceil(timeLeft * 10));
-      setTimeout(() => initRound(round + 1), 1500);
-    } else {
-      // 오답 (틀렸다는 효과) - 여기선 간단히 0.5초 뒤 초기화
-      // 실제로는 흔들림 효과 등을 줄 수 있음
+      setTimeout(() => initRound(round + 1), 2000); // 정답 확인 시간 조금 여유있게
     }
   }, [answerBlocks, currentWord, round, timeLeft, initRound]);
 
@@ -224,6 +220,38 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
   if (timePercent < 30) barColor = 'bg-red-500';
 
   if (!currentWord) return <div>로딩중...</div>;
+
+  // 예문 렌더링 헬퍼 함수 (정답 가리기/보여주기)
+  const renderSentence = () => {
+    const isRevealed = gameState === 'correct' || gameState === 'lost';
+    const target = currentWord.reading;
+    const sentence = currentWord.example;
+    
+    // 예문에서 정답 단어를 기준으로 텍스트를 나눕니다.
+    const parts = sentence.split(target);
+
+    return (
+      <div className="bg-purple-50 p-4 rounded-2xl border-2 border-purple-100 w-full mb-6 relative">
+         <span className="absolute -top-3 left-4 bg-purple-500 text-white text-xs px-2 py-1 rounded-full font-bold">예문</span>
+         <p className="text-xl text-gray-700 font-bold leading-relaxed text-center break-keep">
+           {parts.map((part, index) => (
+             <React.Fragment key={index}>
+               {part}
+               {index < parts.length - 1 && (
+                 <span className={`inline-flex items-center justify-center mx-1 px-2 py-1 rounded-lg transition-all duration-500 ${
+                   isRevealed 
+                     ? "bg-transparent text-purple-600 text-2xl font-black underline decoration-wavy underline-offset-4 scale-110" 
+                     : "bg-gray-300 text-transparent min-w-[3rem]"
+                 }`}>
+                   {isRevealed ? target : '□'.repeat(target.length)}
+                 </span>
+               )}
+             </React.Fragment>
+           ))}
+         </p>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col h-full bg-purple-50 animate-fade-in relative">
@@ -247,23 +275,19 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center p-6 space-y-8 overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center p-6 pb-24 overflow-y-auto">
         
         {/* 문제 제시 (한자) */}
-        <div className="w-full text-center space-y-2">
-          <div className="text-gray-500 font-bold text-sm bg-purple-100 inline-block px-3 py-1 rounded-full">
-            독음을 맞춰보세요
-          </div>
-          <h2 className="text-6xl font-black text-gray-800 drop-shadow-sm hanja-font">
+        <div className="w-full text-center mb-6">
+          <h2 className="text-7xl font-black text-gray-800 drop-shadow-sm hanja-font mb-4">
             {currentWord.hanja}
           </h2>
-          {gameState === 'correct' && (
-             <p className="text-green-600 font-bold animate-bounce mt-2">{currentWord.example}</p>
-          )}
+          {/* 예문 표시 (수정된 부분) */}
+          {renderSentence()}
         </div>
 
         {/* 조립 영역 (정답칸) */}
-        <div className="flex gap-2 min-h-[80px] items-center justify-center p-4 bg-white/50 rounded-2xl w-full border-2 border-dashed border-purple-300">
+        <div className="flex gap-2 min-h-[80px] items-center justify-center p-4 bg-white rounded-2xl w-full border-4 border-dashed border-purple-200 mb-6 shadow-inner">
           {Array.from({ length: currentWord.syllables.length }).map((_, i) => {
             const block = answerBlocks[i];
             return (
@@ -303,10 +327,13 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
             <div className="bg-white rounded-[2rem] p-8 w-full max-w-xs text-center shadow-2xl border-8 border-purple-400">
               <div className="text-6xl mb-4">⏰</div>
               <h2 className="text-3xl font-black text-gray-800 mb-2">시간 초과!</h2>
-              <p className="text-xl font-bold text-purple-600 mb-4">정답: {currentWord.reading}</p>
+              <p className="text-xl font-bold text-gray-500 mb-4">정답은?</p>
+              <div className="text-4xl font-black text-purple-600 mb-6 bg-purple-50 p-4 rounded-xl">
+                 {currentWord.reading}
+              </div>
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={onBack} className="bg-gray-100 text-gray-600 py-3 rounded-2xl font-bold">나가기</button>
-                <button onClick={() => initRound(1)} className="bg-purple-500 text-white py-3 rounded-2xl font-bold">다시 하기</button>
+                <button onClick={onBack} className="bg-gray-100 text-gray-600 py-3 rounded-2xl font-bold hover:bg-gray-200">나가기</button>
+                <button onClick={() => initRound(1)} className="bg-purple-500 text-white py-3 rounded-2xl font-bold hover:bg-purple-600 shadow-md border-b-4 border-purple-700 active:border-b-0 active:translate-y-1">다시 하기</button>
               </div>
             </div>
           </div>
