@@ -8,7 +8,7 @@
 // ----------------------------------------------------------------------
 export const HANJA_LEVEL_8 = [
   { id: 1, char: '九', sound: '아홉', meaning: '구' }, { id: 2, char: '口', sound: '입', meaning: '구' },
-  { id: 3, char: '女', sound: '계집', meaning: '녀' }, { id: 4, char: '六', sound: '여섯', meaning: '륙' },
+  { id: 3, char: '女', sound: '여자', meaning: '녀' }, { id: 4, char: '六', sound: '여섯', meaning: '륙' },
   { id: 5, char: '母', sound: '어머니', meaning: '모' }, { id: 6, char: '木', sound: '나무', meaning: '목' },
   { id: 7, char: '門', sound: '문', meaning: '문' }, { id: 8, char: '白', sound: '흰', meaning: '백' },
   { id: 9, char: '父', sound: '아버지', meaning: '부' }, { id: 10, char: '四', sound: '넉', meaning: '사' },

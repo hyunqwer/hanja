@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, RotateCcw, Home, Star, Timer, Trophy, ArrowRight, ArrowLeft, CheckCircle, Zap, Puzzle, Volume2 } from 'lucide-react';
+import { Play, RotateCcw, Home, Star, Timer, Trophy, ArrowRight, ArrowLeft, CheckCircle, Zap, Puzzle, Volume2, Sparkles } from 'lucide-react';
 import { LEVELS } from './hanjaData'; // 분리된 데이터 파일 불러오기!
 
 // Tailwind 동적 클래스 매핑
@@ -11,77 +11,100 @@ const LEVEL_STYLES = {
   red: { bg: 'bg-red-400', text: 'text-white', ring: 'ring-red-200' },
 };
 
-// --- 유틸리티: 소리 효과 (Web Audio API - 외부 파일 없이 효과음 생성) ---
+// 칭찬 문구 리스트 (20개)
+const PRAISE_PHRASES = [
+  "참 잘했어요! 🎉", "글씨가 예술이에요! 🎨", "한자 박사님이네요! 🎓", "완벽해요! 💯",
+  "정말 멋져요! ✨", "대단해요! 👍", "최고예요! 🌟", "노력하는 모습이 아름다워요! 💖",
+  "획순이 정확해요! 📏", "천재인가 봐요! 😲", "매일매일 실력이 늘어요! 📈", "브라보! 👏",
+  "이대로만 하면 1급도 문제없어요! 🚀", "집중력이 대단해요! 🔥", "글씨가 살아있어요! 🐉",
+  "우와, 감동했어요! 😭", "자랑스러워요! 🏆", "선생님보다 잘 쓰는데요? 👨‍🏫",
+  "손이 보이지 않아요! ⚡", "슈퍼스타 탄생! 🌈"
+];
+
+// --- 유틸리티: 소리 효과 (Web Audio API 최적화) ---
+// AudioContext를 한 번만 생성하여 재사용 (메모리 누수 및 소리 끊김 방지)
+const audioCtxRef = { current: null };
+
+const getAudioContext = () => {
+  if (!audioCtxRef.current) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      audioCtxRef.current = new AudioContext();
+    }
+  }
+  if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+    audioCtxRef.current.resume();
+  }
+  return audioCtxRef.current;
+};
+
 const playSound = (type) => {
   try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
     
-    const ctx = new AudioContext();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     
     osc.connect(gain);
     gain.connect(ctx.destination);
 
+    const now = ctx.currentTime;
+
     if (type === 'success') {
       // 딩동댕 (도-미-솔)
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime); // 도
-      osc.frequency.linearRampToValueAtTime(659.25, ctx.currentTime + 0.1); // 미
-      osc.frequency.linearRampToValueAtTime(783.99, ctx.currentTime + 0.2); // 솔
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.4);
+      osc.frequency.setValueAtTime(523.25, now); // 도
+      osc.frequency.linearRampToValueAtTime(659.25, now + 0.1); // 미
+      osc.frequency.linearRampToValueAtTime(783.99, now + 0.2); // 솔
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+      osc.start(now);
+      osc.stop(now + 0.4);
     } else if (type === 'error') {
       // 땡 (낮은 톱니파)
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(150, ctx.currentTime);
-      osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.3);
+      osc.frequency.setValueAtTime(150, now);
+      osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+      osc.start(now);
+      osc.stop(now + 0.3);
     } else if (type === 'click') {
       // 뽁 (짧은 클릭음)
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(600, ctx.currentTime);
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.05);
+      osc.frequency.setValueAtTime(600, now);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+      osc.start(now);
+      osc.stop(now + 0.05);
     }
   } catch (e) {
     console.error("Audio play failed", e);
   }
 };
 
-// --- 유틸리티: TTS (음성 합성) ---
+// --- 유틸리티: TTS ---
 const speak = (text) => {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
-  
-  // 기존 음성 중단 (빠른 반응을 위해)
   window.speechSynthesis.cancel();
-
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'ko-KR'; // 한국어 설정
-  utterance.rate = 0.9; // 약간 천천히 또박또박
-  utterance.pitch = 1.1; // 약간 높은 톤 (아이들에게 친근하게)
-  
+  utterance.lang = 'ko-KR';
+  utterance.rate = 0.9;
+  utterance.pitch = 1.1;
   window.speechSynthesis.speak(utterance);
 };
 
-// --- 유틸리티: 진동 효과 ---
+// --- 유틸리티: 진동 ---
 const vibrateSuccess = () => {
   if (typeof navigator !== 'undefined' && navigator.vibrate) {
-    navigator.vibrate(50); // 짧게 한 번 (징!)
+    navigator.vibrate(50);
   }
 };
 
 const vibrateError = () => {
   if (typeof navigator !== 'undefined' && navigator.vibrate) {
-    navigator.vibrate([100, 50, 100]); // 길게 두 번 (지잉-지잉)
+    navigator.vibrate([100, 50, 100]);
   }
 };
 
@@ -175,7 +198,7 @@ const MainMenu = ({ onStartPractice, onStartGame, onStartSoundPuzzle, currentLev
         </div>
       </button>
 
-      {/* 새로운 독음 조립 퍼즐 버튼 */}
+      {/* 독음 조립 퍼즐 버튼 */}
       <button 
         onClick={() => { playSound('click'); onStartSoundPuzzle(); }}
         className="group relative bg-white border-b-8 border-purple-200 rounded-3xl p-5 hover:bg-purple-50 hover:border-purple-300 hover:translate-y-1 active:border-b-0 active:translate-y-2 transition-all duration-150 shadow-lg flex items-center gap-5"
@@ -197,11 +220,19 @@ const MainMenu = ({ onStartPractice, onStartGame, onStartSoundPuzzle, currentLev
 
 // --- 컴포넌트: 독음 조립 퍼즐 모드 ---
 const SoundPuzzleMode = ({ onBack, data, levelId }) => {
-  // 라운드별 난이도 설정
+  // 라운드별 난이도 설정 (3개 라운드당 1초씩 감소)
   const getRoundConfig = (round) => {
-    if (round <= 2) return { time: 20, distractors: 1 }; // R1~2: 쉬움
-    if (round <= 4) return { time: 15, distractors: 2 }; // R3~4: 보통
-    return { time: 12, distractors: 3 }; // R5+: 어려움
+    // 기본 시간 20초에서 시작, (round-1)/3 만큼 감소. 최소 5초 보장.
+    const timeDecrease = Math.floor((round - 1) / 3);
+    const time = Math.max(5, 20 - timeDecrease);
+
+    // 방해 블록 수
+    let distractors = 1;
+    if (round > 2) distractors = 2;
+    if (round > 5) distractors = 3;
+    if (round > 10) distractors = 4;
+
+    return { time, distractors };
   };
 
   const [round, setRound] = useState(1);
@@ -209,9 +240,9 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
   const [timeLeft, setTimeLeft] = useState(20);
   
   const [currentWord, setCurrentWord] = useState(null);
-  const [poolBlocks, setPoolBlocks] = useState([]); // 섞인 블록들 (정답+오답)
-  const [answerBlocks, setAnswerBlocks] = useState([]); // 사용자가 맞춘 블록들
-  const [gameState, setGameState] = useState('ready'); // ready, playing, correct, lost
+  const [poolBlocks, setPoolBlocks] = useState([]); 
+  const [answerBlocks, setAnswerBlocks] = useState([]); 
+  const [gameState, setGameState] = useState('ready'); 
   const [score, setScore] = useState(0);
   
   // 데이터 준비
@@ -223,11 +254,9 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     setAnswerBlocks([]);
     setGameState('playing');
 
-    // 1. 문제 출제 (랜덤 단어 1개 선택)
     const randomWord = data[Math.floor(Math.random() * data.length)];
     setCurrentWord(randomWord);
 
-    // 2. 오답 블록 생성 (다른 단어들의 음절에서 랜덤 추출)
     const allSyllables = data.flatMap(w => w.syllables);
     const distractors = [];
     while (distractors.length < config.distractors) {
@@ -235,11 +264,9 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
       if (!randomWord.syllables.includes(s)) distractors.push(s);
     }
 
-    // 3. 블록 섞기 (정답 음절 + 오답 음절)
     const mixed = [...randomWord.syllables.map((s, i) => ({ id: `ans-${i}`, text: s, type: 'answer' })), 
                    ...distractors.map((s, i) => ({ id: `dist-${i}`, text: s, type: 'distractor' }))];
     
-    // 셔플
     mixed.sort(() => 0.5 - Math.random());
     setPoolBlocks(mixed);
 
@@ -264,10 +291,9 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     return () => clearInterval(timer);
   }, [gameState]);
 
-  // 블록 클릭 핸들러 (풀 -> 정답칸 이동)
   const handlePoolBlockClick = (block) => {
     if (gameState !== 'playing') return;
-    playSound('click'); // 클릭음
+    playSound('click'); 
     speak(block.text); // 블록 글자 읽기
     
     if (answerBlocks.length >= currentWord.syllables.length) return;
@@ -276,7 +302,6 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     setAnswerBlocks(prev => [...prev, block]);
   };
 
-  // 정답칸 블록 클릭 핸들러 (정답칸 -> 풀 이동)
   const handleAnswerBlockClick = (block) => {
     if (gameState !== 'playing') return;
     playSound('click');
@@ -285,7 +310,7 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     setPoolBlocks(prev => [...prev, block]);
   };
 
-  // 정답 체크 (블록이 꽉 찼을 때 자동 체크)
+  // 정답 체크
   useEffect(() => {
     if (!currentWord || answerBlocks.length !== currentWord.syllables.length) return;
 
@@ -297,26 +322,27 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
       setScore(prev => prev + 100 + Math.ceil(timeLeft * 10));
       vibrateSuccess();
       playSound('success');
-      speak(`${currentWord.reading}. ${currentWord.example}`); // 정답 단어와 예문 읽어주기
       
-      setTimeout(() => initRound(round + 1), 2500); // 읽는 시간 고려하여 대기 시간 증가
+      // 정답 단어만 읽어줌 (예문은 읽지 않음)
+      speak(currentWord.reading); 
+      
+      // 정답 확인 후 빠르게 넘어감 (0.8초)
+      setTimeout(() => initRound(round + 1), 800); 
     }
   }, [answerBlocks, currentWord, round, timeLeft, initRound]);
 
-  // 시간 바
   const timePercent = (timeLeft / maxTime) * 100;
   let barColor = 'bg-purple-500';
   if (timePercent < 30) barColor = 'bg-red-500';
 
   if (!currentWord) return <div>로딩중...</div>;
 
-  // 예문 렌더링 헬퍼 함수 (정답 가리기/보여주기)
   const renderSentence = () => {
     const isRevealed = gameState === 'correct' || gameState === 'lost';
     const target = currentWord.reading;
     const sentence = currentWord.example;
     
-    // 예문에서 정답 단어를 기준으로 텍스트를 나눕니다.
+    // 예문 나누기
     const parts = sentence.split(target);
 
     return (
@@ -359,8 +385,13 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
                <span className="text-2xl font-black text-purple-600 leading-none">{score}</span>
             </div>
         </div>
-        <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-           <div className={`h-full transition-all duration-100 ${barColor}`} style={{ width: `${timePercent}%` }}></div>
+        {/* 타임 게이지 바 */}
+        <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden relative">
+           <div 
+             className={`h-full transition-all duration-100 linear ${barColor}`} 
+             style={{ width: `${timePercent}%` }}
+           ></div>
+           <div className="absolute top-0 right-1 text-[10px] text-gray-500 font-bold">{Math.ceil(timeLeft)}s</div>
         </div>
       </div>
 
@@ -371,7 +402,6 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
           <h2 className="text-7xl font-black text-gray-800 drop-shadow-sm hanja-font mb-4">
             {currentWord.hanja}
           </h2>
-          {/* 예문 표시 (수정된 부분) */}
           {renderSentence()}
         </div>
 
@@ -442,7 +472,6 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
 
   const currentHanja = data[currentIndex];
 
-  // 카드 변경 시 TTS 읽어주기
   useEffect(() => {
     if (currentHanja) {
       speak(`${currentHanja.sound} ${currentHanja.meaning}`);
@@ -479,7 +508,10 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
         setFeedback("잘하고 있어요! 👍");
       },
       onComplete: function(summaryData) {
-        setFeedback("참 잘했어요! 완벽해요! 🎉");
+        // 랜덤 칭찬 문구 선택
+        const randomPraise = PRAISE_PHRASES[Math.floor(Math.random() * PRAISE_PHRASES.length)];
+        setFeedback(randomPraise);
+        
         vibrateSuccess();
         playSound('success');
         speak("참 잘했어요!");
@@ -599,7 +631,7 @@ const GameMode = ({ onBack, data, levelId }) => {
     if (round === 2) return { time: 20, pairs: 6 };
     if (round === 3) return { time: 18, pairs: 8 };
     if (round === 4) return { time: 15, pairs: 8 };
-    if (round >= 5) return { time: 12, pairs: 10 }; // 5라운드 이상은 최고 난이도 유지
+    if (round >= 5) return { time: 12, pairs: 10 };
     return { time: 25, pairs: 6 };
   };
 
@@ -610,17 +642,15 @@ const GameMode = ({ onBack, data, levelId }) => {
   const [tiles, setTiles] = useState([]);
   const [selectedTiles, setSelectedTiles] = useState([]);
   const [matchedIds, setMatchedIds] = useState([]);
-  const [gameState, setGameState] = useState('ready'); // ready, playing, clear, won, lost
+  const [gameState, setGameState] = useState('ready');
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
-  const [comboEffect, setComboEffect] = useState(null); // 콤보 이펙트 표시용
+  const [comboEffect, setComboEffect] = useState(null); 
 
-  // 최고 기록 (로컬 스토리지)
   const [bestScore, setBestScore] = useState(() => {
     return parseInt(localStorage.getItem(`hanja-best-score-${levelId}`) || '0');
   });
 
-  // 라운드 시작
   const startRound = useCallback((roundNum) => {
     const config = getRoundConfig(roundNum);
     setMaxTime(config.time);
@@ -631,9 +661,7 @@ const GameMode = ({ onBack, data, levelId }) => {
     setCombo(0);
     setGameState('playing');
 
-    // 카드 생성
     const pairCount = config.pairs;
-    // 전체 데이터에서 랜덤하게 필요한 쌍만큼 선택
     const shuffledHanja = [...data].sort(() => 0.5 - Math.random()).slice(0, pairCount);
     
     let gameTiles = [];
@@ -642,18 +670,15 @@ const GameMode = ({ onBack, data, levelId }) => {
       gameTiles.push({ id: item.id, type: 'meaning', content: `${item.sound} ${item.meaning}`, uniqueId: `${item.id}-m` });
     });
 
-    // 타일 섞기
     gameTiles.sort(() => 0.5 - Math.random());
     setTiles(gameTiles);
 
   }, [data]);
 
-  // 첫 시작
   useEffect(() => {
     startRound(1);
   }, [startRound]);
 
-  // 타이머 로직
   useEffect(() => {
     if (gameState !== 'playing') return;
 
@@ -661,22 +686,21 @@ const GameMode = ({ onBack, data, levelId }) => {
       setTimeLeft(prev => {
         if (prev <= 0.1) { 
           setGameState('lost'); 
-          // 최고 기록 갱신
           if (score > bestScore) {
             setBestScore(score);
             localStorage.setItem(`hanja-best-score-${levelId}`, score.toString());
           }
-          vibrateError(); // 시간 초과 시 진동
+          vibrateError(); 
+          playSound('error');
           return 0; 
         }
-        return Math.max(0, prev - 0.1); // 0.1초 단위로 부드럽게 감소
+        return Math.max(0, prev - 0.1);
       });
     }, 100);
 
     return () => clearInterval(timer);
   }, [gameState, score, bestScore, levelId]);
 
-  // 타일 클릭 핸들러
   const handleTileClick = (tile) => {
     if (gameState !== 'playing') return;
     if (matchedIds.includes(tile.id)) return;
@@ -684,22 +708,19 @@ const GameMode = ({ onBack, data, levelId }) => {
     if (selectedTiles.length >= 2) return;
 
     playSound('click');
-    speak(tile.content); // 타일 내용 읽기
+    speak(tile.content);
 
     const newSelected = [...selectedTiles, tile];
     setSelectedTiles(newSelected);
 
     if (newSelected.length === 2) {
-      // 1. 매칭 성공
       if (newSelected[0].id === newSelected[1].id) {
         const newMatchedIds = [...matchedIds, newSelected[0].id];
         setMatchedIds(newMatchedIds);
         
-        // 콤보 계산
         const newCombo = combo + 1;
         setCombo(newCombo);
 
-        // 점수 계산 (기본 100 + 콤보 보너스)
         const baseScore = 100;
         let multiplier = 1;
         if (newCombo >= 5) multiplier = 2.0;
@@ -709,18 +730,15 @@ const GameMode = ({ onBack, data, levelId }) => {
         const addScore = Math.floor(baseScore * multiplier);
         setScore(prev => prev + addScore);
 
-        // [수정] 시간 보너스 추가
-        // 콤보에 따라 시간 추가 (기본 1초, 2콤보 이상 2초, 5콤보 이상 3초)
         let timeBonus = 1;
         if (newCombo >= 2) timeBonus = 2;
         if (newCombo >= 5) timeBonus = 3;
 
-        setTimeLeft(prev => Math.min(prev + timeBonus, maxTime)); // 최대 시간 넘지 않게
+        setTimeLeft(prev => Math.min(prev + timeBonus, maxTime));
 
         vibrateSuccess();
         playSound('success');
 
-        // 콤보 이펙트 표시 (시간 보너스 표시 추가)
         if (newCombo >= 2) {
           setComboEffect(`${newCombo} COMBO! +${addScore} (⏰+${timeBonus}s)`);
           setTimeout(() => setComboEffect(null), 800);
@@ -728,25 +746,21 @@ const GameMode = ({ onBack, data, levelId }) => {
 
         setSelectedTiles([]);
 
-        // 라운드 클리어 체크
         if (newMatchedIds.length === tiles.length / 2) {
-          // 시간 보너스
           const roundTimeBonus = Math.floor(timeLeft * 10);
           setScore(prev => prev + roundTimeBonus);
           setComboEffect(`CLEAR! +${roundTimeBonus}`);
           
           setGameState('clear');
-          playSound('success'); // 클리어 사운드
+          playSound('success'); 
           
-          // 1.5초 후 다음 라운드
           setTimeout(() => {
              startRound(round + 1);
           }, 1500);
         }
 
       } else {
-        // 2. 매칭 실패
-        setCombo(0); // 콤보 초기화
+        setCombo(0);
         vibrateError();
         playSound('error');
         setTimeout(() => {
@@ -756,7 +770,6 @@ const GameMode = ({ onBack, data, levelId }) => {
     }
   };
 
-  // 타임 바 색상 및 퍼센트 계산
   const timePercent = (timeLeft / maxTime) * 100;
   let barColor = 'bg-green-500';
   if (timePercent < 50) barColor = 'bg-yellow-400';
@@ -764,26 +777,20 @@ const GameMode = ({ onBack, data, levelId }) => {
 
   return (
     <div className="flex flex-col h-full bg-green-50 animate-fade-in relative">
-      {/* 상단 UI (라운드 / 타임바 / 점수) */}
       <div className="bg-white p-3 shadow-md z-10 rounded-b-3xl border-b-4 border-green-100 space-y-2">
-        {/* 상단: 홈 / 라운드 / 점수 */}
         <div className="flex items-center justify-between">
             <button onClick={onBack} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
               <Home size={20} className="text-gray-600" />
             </button>
-            
             <div className="flex flex-col items-center">
                <span className="text-xs font-bold text-gray-400">ROUND</span>
                <span className="text-2xl font-black text-blue-600 leading-none">{round}</span>
             </div>
-
             <div className="flex flex-col items-end">
                <span className="text-xs font-bold text-gray-400">SCORE</span>
                <span className="text-2xl font-black text-green-600 leading-none">{score}</span>
             </div>
         </div>
-
-        {/* 타임 바 */}
         <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden relative shadow-inner">
            <div 
              className={`h-full transition-all duration-100 ease-linear ${barColor} ${timePercent < 20 ? 'animate-pulse' : ''}`}
@@ -792,7 +799,6 @@ const GameMode = ({ onBack, data, levelId }) => {
         </div>
       </div>
 
-      {/* 콤보 이펙트 (중앙) */}
       {comboEffect && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50 animate-bounce-short">
           <div className="text-4xl font-black text-yellow-500 drop-shadow-lg stroke-text-white whitespace-nowrap">
@@ -801,9 +807,7 @@ const GameMode = ({ onBack, data, levelId }) => {
         </div>
       )}
 
-      {/* 게임 그리드 */}
       <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
-        {/* 라운드 클리어 메시지 */}
         {gameState === 'clear' ? (
            <div className="text-center animate-bounce-short">
              <div className="text-6xl mb-2">🎉</div>
@@ -841,7 +845,6 @@ const GameMode = ({ onBack, data, levelId }) => {
         )}
       </div>
 
-      {/* 게임 오버 결과 화면 */}
       {(gameState === 'lost') && (
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6 animate-fade-in">
           <div className="bg-white rounded-[2rem] p-8 w-full max-w-xs text-center shadow-2xl border-8 border-yellow-400 transform transition-all scale-105">
@@ -896,7 +899,7 @@ export default function App() {
   const getCurrentData = () => {
     // LEVELS 배열은 이제 hanjaData.js에서 가져오므로 여기서도 접근 가능
     const levelObj = LEVELS.find(l => l.id === currentLevel);
-    return levelObj ? levelObj.data : LEVELS[0].data; // 기본값 안전 처리
+    return levelObj ? levelObj.data : LEVELS[0].data; 
   };
 
   // 현재 레벨에 맞는 단어 데이터 가져오기 (독음 퍼즐용)
