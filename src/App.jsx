@@ -11,6 +11,19 @@ const LEVEL_STYLES = {
   red: { bg: 'bg-red-400', text: 'text-white', ring: 'ring-red-200' },
 };
 
+// --- 유틸리티: 진동 효과 ---
+const vibrateSuccess = () => {
+  if (typeof navigator !== 'undefined' && navigator.vibrate) {
+    navigator.vibrate(50); // 짧게 한 번 (징!)
+  }
+};
+
+const vibrateError = () => {
+  if (typeof navigator !== 'undefined' && navigator.vibrate) {
+    navigator.vibrate([100, 50, 100]); // 길게 두 번 (지잉-지잉)
+  }
+};
+
 // --- 유틸리티: Hanzi Writer 스크립트 로드 ---
 const useHanziWriterScript = () => {
   const [loaded, setLoaded] = useState(false);
@@ -173,7 +186,11 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     if (gameState !== 'playing') return;
     const timer = setInterval(() => {
       setTimeLeft(prev => {
-        if (prev <= 0.1) { setGameState('lost'); return 0; }
+        if (prev <= 0.1) { 
+          setGameState('lost'); 
+          vibrateError(); // 시간 초과 시 진동
+          return 0; 
+        }
         return Math.max(0, prev - 0.1);
       });
     }, 100);
@@ -209,9 +226,13 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     
     if (userAnswer === currentWord.reading) {
       // 정답!
+      vibrateSuccess(); // 성공 진동
       setGameState('correct');
       setScore(prev => prev + 100 + Math.ceil(timeLeft * 10));
       setTimeout(() => initRound(round + 1), 2000); // 정답 확인 시간 조금 여유있게
+    } else {
+      // 오답
+      vibrateError(); // 실패 진동
     }
   }, [answerBlocks, currentWord, round, timeLeft, initRound]);
 
@@ -377,12 +398,14 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
       onMistake: function(strokeData) {
         setFeedback("앗! 순서가 틀렸어요 😅");
         writer.animateStroke(strokeData.strokeNum); 
+        vibrateError(); // 쓰기 틀림 진동
       },
       onCorrectStroke: function(strokeData) {
         setFeedback("잘하고 있어요! 👍");
       },
       onComplete: function(summaryData) {
         setFeedback("참 잘했어요! 완벽해요! 🎉");
+        vibrateSuccess(); // 쓰기 완료 진동
       }
     });
 
@@ -558,6 +581,7 @@ const GameMode = ({ onBack, data, levelId }) => {
             setBestScore(score);
             localStorage.setItem(`hanja-best-score-${levelId}`, score.toString());
           }
+          vibrateError(); // 시간 초과 시 진동
           return 0; 
         }
         return Math.max(0, prev - 0.1); // 0.1초 단위로 부드럽게 감소
@@ -605,6 +629,8 @@ const GameMode = ({ onBack, data, levelId }) => {
 
         setTimeLeft(prev => Math.min(prev + timeBonus, maxTime)); // 최대 시간 넘지 않게
 
+        vibrateSuccess(); // 성공 진동
+
         // 콤보 이펙트 표시 (시간 보너스 표시 추가)
         if (newCombo >= 2) {
           setComboEffect(`${newCombo} COMBO! +${addScore} (⏰+${timeBonus}s)`);
@@ -631,6 +657,7 @@ const GameMode = ({ onBack, data, levelId }) => {
       } else {
         // 2. 매칭 실패
         setCombo(0); // 콤보 초기화
+        vibrateError(); // 실패 진동
         setTimeout(() => {
           setSelectedTiles([]);
         }, 600);
