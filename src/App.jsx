@@ -208,6 +208,7 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     const userAnswer = answerBlocks.map(b => b.text).join('');
     
     if (userAnswer === currentWord.reading) {
+      // 정답!
       setGameState('correct');
       setScore(prev => prev + 100 + Math.ceil(timeLeft * 10));
       setTimeout(() => initRound(round + 1), 2000); // 정답 확인 시간 조금 여유있게
@@ -596,9 +597,17 @@ const GameMode = ({ onBack, data, levelId }) => {
         const addScore = Math.floor(baseScore * multiplier);
         setScore(prev => prev + addScore);
 
-        // 콤보 이펙트 표시
+        // [수정] 시간 보너스 추가
+        // 콤보에 따라 시간 추가 (기본 1초, 2콤보 이상 2초, 5콤보 이상 3초)
+        let timeBonus = 1;
+        if (newCombo >= 2) timeBonus = 2;
+        if (newCombo >= 5) timeBonus = 3;
+
+        setTimeLeft(prev => Math.min(prev + timeBonus, maxTime)); // 최대 시간 넘지 않게
+
+        // 콤보 이펙트 표시 (시간 보너스 표시 추가)
         if (newCombo >= 2) {
-          setComboEffect(`${newCombo} COMBO! +${addScore}`);
+          setComboEffect(`${newCombo} COMBO! +${addScore} (⏰+${timeBonus}s)`);
           setTimeout(() => setComboEffect(null), 800);
         }
 
@@ -607,9 +616,9 @@ const GameMode = ({ onBack, data, levelId }) => {
         // 라운드 클리어 체크
         if (newMatchedIds.length === tiles.length / 2) {
           // 시간 보너스
-          const timeBonus = Math.floor(timeLeft * 10);
-          setScore(prev => prev + timeBonus);
-          setComboEffect(`CLEAR! +${timeBonus}`);
+          const roundTimeBonus = Math.floor(timeLeft * 10);
+          setScore(prev => prev + roundTimeBonus);
+          setComboEffect(`CLEAR! +${roundTimeBonus}`);
           
           setGameState('clear');
           
