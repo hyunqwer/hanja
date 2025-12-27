@@ -22,7 +22,7 @@ const PRAISE_PHRASES = [
 ];
 
 // --- 유틸리티: 소리 효과 (Web Audio API 최적화) ---
-// AudioContext를 한 번만 생성하여 재사용 (메모리 누수 및 소리 끊김 방지)
+// AudioContext를 싱글톤으로 관리하여 메모리 누수 및 재생 중단 방지
 const audioCtxRef = { current: null };
 
 const getAudioContext = () => {
@@ -32,6 +32,7 @@ const getAudioContext = () => {
       audioCtxRef.current = new AudioContext();
     }
   }
+  // 브라우저 정책으로 인해 suspended 된 경우 재개
   if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
     audioCtxRef.current.resume();
   }
@@ -87,7 +88,10 @@ const playSound = (type) => {
 // --- 유틸리티: TTS ---
 const speak = (text) => {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  
+  // 기존 음성 중단 (빠른 반응을 위해)
   window.speechSynthesis.cancel();
+
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'ko-KR';
   utterance.rate = 0.9;
@@ -198,7 +202,7 @@ const MainMenu = ({ onStartPractice, onStartGame, onStartSoundPuzzle, currentLev
         </div>
       </button>
 
-      {/* 독음 조립 퍼즐 버튼 */}
+      {/* 새로운 독음 조립 퍼즐 버튼 */}
       <button 
         onClick={() => { playSound('click'); onStartSoundPuzzle(); }}
         className="group relative bg-white border-b-8 border-purple-200 rounded-3xl p-5 hover:bg-purple-50 hover:border-purple-300 hover:translate-y-1 active:border-b-0 active:translate-y-2 transition-all duration-150 shadow-lg flex items-center gap-5"
@@ -323,7 +327,7 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
       vibrateSuccess();
       playSound('success');
       
-      // 정답 단어만 읽어줌 (예문은 읽지 않음)
+      // 정답 단어만 읽어줌 (예문 읽지 않음)
       speak(currentWord.reading); 
       
       // 정답 확인 후 빠르게 넘어감 (0.8초)
@@ -396,8 +400,6 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
       </div>
 
       <div className="flex-1 flex flex-col items-center p-6 pb-24 overflow-y-auto">
-        
-        {/* 문제 제시 (한자) */}
         <div className="w-full text-center mb-6">
           <h2 className="text-7xl font-black text-gray-800 drop-shadow-sm hanja-font mb-4">
             {currentWord.hanja}
@@ -405,7 +407,6 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
           {renderSentence()}
         </div>
 
-        {/* 조립 영역 (정답칸) */}
         <div className="flex gap-2 min-h-[80px] items-center justify-center p-4 bg-white rounded-2xl w-full border-4 border-dashed border-purple-200 mb-6 shadow-inner">
           {Array.from({ length: currentWord.syllables.length }).map((_, i) => {
             const block = answerBlocks[i];
@@ -427,7 +428,6 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
           })}
         </div>
 
-        {/* 블록 풀 (선택지) */}
         <div className="flex flex-wrap gap-3 justify-center content-start w-full">
           {poolBlocks.map((block) => (
             <button
@@ -440,7 +440,6 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
           ))}
         </div>
 
-        {/* 게임 오버 */}
         {gameState === 'lost' && (
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6 animate-fade-in">
             <div className="bg-white rounded-[2rem] p-8 w-full max-w-xs text-center shadow-2xl border-8 border-purple-400">
@@ -472,6 +471,7 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
 
   const currentHanja = data[currentIndex];
 
+  // 카드 변경 시 TTS 읽어주기
   useEffect(() => {
     if (currentHanja) {
       speak(`${currentHanja.sound} ${currentHanja.meaning}`);
@@ -514,7 +514,18 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
         
         vibrateSuccess();
         playSound('success');
-        speak("참 잘했어요!");
+        speak(randomPraise); // 칭찬 문구 읽어주기
+        
+        // 1.5초 뒤 다음 글자로 자동 이동
+        setTimeout(() => {
+          // 여기서 handleNext를 직접 호출할 수 없으므로(클로저 문제), 
+          // 버튼 클릭과 동일한 로직을 수행해야 합니다.
+          // 다만 useEffect 안이라 상태 의존성이 복잡하므로,
+          // 아래 handleNext가 호출되도록 리팩토링하거나 간단히 외부 트리거를 사용해야 함.
+          // 여기선 간단히 다음 버튼을 누르는 효과를 줍니다.
+          const nextBtn = document.getElementById('next-btn');
+          if (nextBtn) nextBtn.click();
+        }, 1500);
       }
     });
 
@@ -613,6 +624,7 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
           <ArrowLeft size={28} strokeWidth={3} />
         </button>
         <button 
+          id="next-btn" /* 자동 넘김을 위한 ID 추가 */
           onClick={handleNext}
           disabled={currentIndex === data.length - 1}
           className={`p-4 rounded-full shadow-lg transition-all ${currentIndex === data.length - 1 ? 'bg-gray-200 text-gray-400' : 'bg-blue-500 text-white hover:bg-blue-600 hover:scale-110 active:scale-95'}`}
