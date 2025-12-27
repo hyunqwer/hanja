@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, RotateCcw, Home, Star, Timer, Trophy, ArrowRight, ArrowLeft, CheckCircle, Zap, Puzzle } from 'lucide-react';
+import { Play, RotateCcw, Home, Star, Timer, Trophy, ArrowRight, ArrowLeft, CheckCircle, Zap, Puzzle, Volume2 } from 'lucide-react';
 import { LEVELS } from './hanjaData'; // 분리된 데이터 파일 불러오기!
 
 // Tailwind 동적 클래스 매핑
@@ -9,6 +9,67 @@ const LEVEL_STYLES = {
   blue: { bg: 'bg-blue-400', text: 'text-white', ring: 'ring-blue-200' },
   purple: { bg: 'bg-purple-400', text: 'text-white', ring: 'ring-purple-200' },
   red: { bg: 'bg-red-400', text: 'text-white', ring: 'ring-red-200' },
+};
+
+// --- 유틸리티: 소리 효과 (Web Audio API - 외부 파일 없이 효과음 생성) ---
+const playSound = (type) => {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    if (type === 'success') {
+      // 딩동댕 (도-미-솔)
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime); // 도
+      osc.frequency.linearRampToValueAtTime(659.25, ctx.currentTime + 0.1); // 미
+      osc.frequency.linearRampToValueAtTime(783.99, ctx.currentTime + 0.2); // 솔
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.4);
+    } else if (type === 'error') {
+      // 땡 (낮은 톱니파)
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(150, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.3);
+    } else if (type === 'click') {
+      // 뽁 (짧은 클릭음)
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.05);
+    }
+  } catch (e) {
+    console.error("Audio play failed", e);
+  }
+};
+
+// --- 유틸리티: TTS (음성 합성) ---
+const speak = (text) => {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  
+  // 기존 음성 중단 (빠른 반응을 위해)
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'ko-KR'; // 한국어 설정
+  utterance.rate = 0.9; // 약간 천천히 또박또박
+  utterance.pitch = 1.1; // 약간 높은 톤 (아이들에게 친근하게)
+  
+  window.speechSynthesis.speak(utterance);
 };
 
 // --- 유틸리티: 진동 효과 ---
@@ -61,7 +122,12 @@ const MainMenu = ({ onStartPractice, onStartGame, onStartSoundPuzzle, currentLev
           return (
             <button
               key={level.id}
-              onClick={() => !level.locked && onSelectLevel(level.id)}
+              onClick={() => {
+                if (!level.locked) {
+                  onSelectLevel(level.id);
+                  playSound('click');
+                }
+              }}
               disabled={level.locked}
               className={`
                 relative px-4 py-3 rounded-2xl font-black text-lg transition-all duration-200 shadow-md flex items-center gap-2 mb-2
@@ -84,7 +150,7 @@ const MainMenu = ({ onStartPractice, onStartGame, onStartSoundPuzzle, currentLev
 
     <div className="grid grid-cols-1 gap-4 w-full flex-1 content-start">
       <button 
-        onClick={onStartPractice}
+        onClick={() => { playSound('click'); onStartPractice(); }}
         className="group relative bg-white border-b-8 border-blue-200 rounded-3xl p-5 hover:bg-blue-50 hover:border-blue-300 hover:translate-y-1 active:border-b-0 active:translate-y-2 transition-all duration-150 shadow-lg flex items-center gap-5"
       >
         <div className="bg-blue-100 p-3 rounded-2xl group-hover:scale-110 transition-transform">
@@ -97,7 +163,7 @@ const MainMenu = ({ onStartPractice, onStartGame, onStartSoundPuzzle, currentLev
       </button>
 
       <button 
-        onClick={onStartGame}
+        onClick={() => { playSound('click'); onStartGame(); }}
         className="group relative bg-white border-b-8 border-green-200 rounded-3xl p-5 hover:bg-green-50 hover:border-green-300 hover:translate-y-1 active:border-b-0 active:translate-y-2 transition-all duration-150 shadow-lg flex items-center gap-5"
       >
         <div className="bg-green-100 p-3 rounded-2xl group-hover:scale-110 transition-transform">
@@ -111,7 +177,7 @@ const MainMenu = ({ onStartPractice, onStartGame, onStartSoundPuzzle, currentLev
 
       {/* 새로운 독음 조립 퍼즐 버튼 */}
       <button 
-        onClick={onStartSoundPuzzle}
+        onClick={() => { playSound('click'); onStartSoundPuzzle(); }}
         className="group relative bg-white border-b-8 border-purple-200 rounded-3xl p-5 hover:bg-purple-50 hover:border-purple-300 hover:translate-y-1 active:border-b-0 active:translate-y-2 transition-all duration-150 shadow-lg flex items-center gap-5"
       >
         <div className="bg-purple-100 p-3 rounded-2xl group-hover:scale-110 transition-transform">
@@ -188,7 +254,8 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
       setTimeLeft(prev => {
         if (prev <= 0.1) { 
           setGameState('lost'); 
-          vibrateError(); // 시간 초과 시 진동
+          vibrateError(); 
+          playSound('error');
           return 0; 
         }
         return Math.max(0, prev - 0.1);
@@ -200,11 +267,11 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
   // 블록 클릭 핸들러 (풀 -> 정답칸 이동)
   const handlePoolBlockClick = (block) => {
     if (gameState !== 'playing') return;
+    playSound('click'); // 클릭음
+    speak(block.text); // 블록 글자 읽기
     
-    // 정답칸이 꽉 찼으면 무시
     if (answerBlocks.length >= currentWord.syllables.length) return;
 
-    // 풀에서 제거하고 정답칸으로 이동
     setPoolBlocks(prev => prev.filter(b => b.id !== block.id));
     setAnswerBlocks(prev => [...prev, block]);
   };
@@ -212,8 +279,8 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
   // 정답칸 블록 클릭 핸들러 (정답칸 -> 풀 이동)
   const handleAnswerBlockClick = (block) => {
     if (gameState !== 'playing') return;
-
-    // 정답칸에서 제거하고 풀로 이동
+    playSound('click');
+    
     setAnswerBlocks(prev => prev.filter(b => b.id !== block.id));
     setPoolBlocks(prev => [...prev, block]);
   };
@@ -226,13 +293,13 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     
     if (userAnswer === currentWord.reading) {
       // 정답!
-      vibrateSuccess(); // 성공 진동
       setGameState('correct');
       setScore(prev => prev + 100 + Math.ceil(timeLeft * 10));
-      setTimeout(() => initRound(round + 1), 2000); // 정답 확인 시간 조금 여유있게
-    } else {
-      // 오답
-      vibrateError(); // 실패 진동
+      vibrateSuccess();
+      playSound('success');
+      speak(`${currentWord.reading}. ${currentWord.example}`); // 정답 단어와 예문 읽어주기
+      
+      setTimeout(() => initRound(round + 1), 2500); // 읽는 시간 고려하여 대기 시간 증가
     }
   }, [answerBlocks, currentWord, round, timeLeft, initRound]);
 
@@ -375,6 +442,13 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
 
   const currentHanja = data[currentIndex];
 
+  // 카드 변경 시 TTS 읽어주기
+  useEffect(() => {
+    if (currentHanja) {
+      speak(`${currentHanja.sound} ${currentHanja.meaning}`);
+    }
+  }, [currentHanja]);
+
   useEffect(() => {
     if (!isScriptLoaded || !containerRef.current || !currentHanja) return;
 
@@ -398,14 +472,17 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
       onMistake: function(strokeData) {
         setFeedback("앗! 순서가 틀렸어요 😅");
         writer.animateStroke(strokeData.strokeNum); 
-        vibrateError(); // 쓰기 틀림 진동
+        vibrateError(); 
+        playSound('error');
       },
       onCorrectStroke: function(strokeData) {
         setFeedback("잘하고 있어요! 👍");
       },
       onComplete: function(summaryData) {
         setFeedback("참 잘했어요! 완벽해요! 🎉");
-        vibrateSuccess(); // 쓰기 완료 진동
+        vibrateSuccess();
+        playSound('success');
+        speak("참 잘했어요!");
       }
     });
 
@@ -415,6 +492,7 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
     if (currentIndex < data.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setFeedback("");
+      playSound('click');
     }
   };
 
@@ -422,6 +500,7 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
     if (currentIndex > 0) {
       setCurrentIndex(prev => prev - 1);
       setFeedback("");
+      playSound('click');
     }
   };
 
@@ -450,8 +529,14 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
         {/* 학습 카드 */}
         <div className="bg-white rounded-[2.5rem] shadow-xl p-6 w-full max-w-sm border-4 border-white ring-4 ring-blue-100 flex flex-col items-center mb-6">
           <div className="text-center mb-6">
-            <h2 className="text-4xl font-black text-gray-800 mb-2 tracking-tight">
-              {currentHanja.sound} <span className="text-blue-500">{currentHanja.meaning}</span>
+            <h2 className="text-4xl font-black text-gray-800 mb-2 tracking-tight flex items-center justify-center gap-2">
+              <span>{currentHanja.sound} <span className="text-blue-500">{currentHanja.meaning}</span></span>
+              <button 
+                onClick={() => speak(`${currentHanja.sound} ${currentHanja.meaning}`)}
+                className="p-2 bg-blue-100 rounded-full text-blue-500 hover:bg-blue-200 transition-colors"
+              >
+                <Volume2 size={20} />
+              </button>
             </h2>
             <div className="inline-block bg-yellow-100 px-3 py-1 rounded-lg text-yellow-700 font-bold text-sm">
               획순을 따라 그려보세요
@@ -598,6 +683,9 @@ const GameMode = ({ onBack, data, levelId }) => {
     if (selectedTiles.find(t => t.uniqueId === tile.uniqueId)) return;
     if (selectedTiles.length >= 2) return;
 
+    playSound('click');
+    speak(tile.content); // 타일 내용 읽기
+
     const newSelected = [...selectedTiles, tile];
     setSelectedTiles(newSelected);
 
@@ -629,7 +717,8 @@ const GameMode = ({ onBack, data, levelId }) => {
 
         setTimeLeft(prev => Math.min(prev + timeBonus, maxTime)); // 최대 시간 넘지 않게
 
-        vibrateSuccess(); // 성공 진동
+        vibrateSuccess();
+        playSound('success');
 
         // 콤보 이펙트 표시 (시간 보너스 표시 추가)
         if (newCombo >= 2) {
@@ -647,6 +736,7 @@ const GameMode = ({ onBack, data, levelId }) => {
           setComboEffect(`CLEAR! +${roundTimeBonus}`);
           
           setGameState('clear');
+          playSound('success'); // 클리어 사운드
           
           // 1.5초 후 다음 라운드
           setTimeout(() => {
@@ -657,7 +747,8 @@ const GameMode = ({ onBack, data, levelId }) => {
       } else {
         // 2. 매칭 실패
         setCombo(0); // 콤보 초기화
-        vibrateError(); // 실패 진동
+        vibrateError();
+        playSound('error');
         setTimeout(() => {
           setSelectedTiles([]);
         }, 600);
