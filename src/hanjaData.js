@@ -5,54 +5,88 @@
 
 // ----------------------------------------------------------------------
 // [PART 1] 기초 한자 데이터 (쓰기/매칭 게임용)
-// * 현대적 훈음 반영 (계집->여자, 사내->남자 등)
 // ----------------------------------------------------------------------
 
-// 8급 (30자)
+// 8급 (30자) - 전수 검토 완료
 export const HANJA_LEVEL_8 = [
-  { id: 1, char: '九', sound: '아홉', meaning: '구' }, { id: 2, char: '口', sound: '입', meaning: '구' },
-  { id: 3, char: '女', sound: '여자', meaning: '녀' }, { id: 4, char: '六', sound: '여섯', meaning: '륙' },
-  { id: 5, char: '母', sound: '어머니', meaning: '모' }, { id: 6, char: '木', sound: '나무', meaning: '목' },
-  { id: 7, char: '門', sound: '문', meaning: '문' }, { id: 8, char: '白', sound: '흰', meaning: '백' },
-  { id: 9, char: '父', sound: '아버지', meaning: '부' }, { id: 10, char: '四', sound: '넉', meaning: '사' },
-  { id: 11, char: '山', sound: '메', meaning: '산' }, { id: 12, char: '三', sound: '석', meaning: '삼' },
-  { id: 13, char: '上', sound: '위', meaning: '상' }, { id: 14, char: '小', sound: '작을', meaning: '소' },
-  { id: 15, char: '水', sound: '물', meaning: '수' }, { id: 16, char: '十', sound: '열', meaning: '십' },
-  { id: 17, char: '五', sound: '다섯', meaning: '오' }, { id: 18, char: '王', sound: '임금', meaning: '왕' },
-  { id: 19, char: '月', sound: '달', meaning: '월' }, { id: 20, char: '二', sound: '두', meaning: '이' },
-  { id: 21, char: '人', sound: '사람', meaning: '인' }, { id: 22, char: '日', sound: '날', meaning: '일' },
-  { id: 23, char: '一', sound: '한', meaning: '일' }, { id: 24, char: '子', sound: '아들', meaning: '자' },
-  { id: 25, char: '中', sound: '가운데', meaning: '중' }, { id: 26, char: '七', sound: '일곱', meaning: '칠' },
-  { id: 27, char: '土', sound: '흙', meaning: '토' }, { id: 28, char: '八', sound: '여덟', meaning: '팔' },
-  { id: 29, char: '下', sound: '아래', meaning: '하' }, { id: 30, char: '火', sound: '불', meaning: '화' }
+  { id: 1, char: '九', sound: '아홉', meaning: '구' },
+  { id: 2, char: '口', sound: '입', meaning: '구' },
+  { id: 3, char: '女', sound: '여자', meaning: '녀' },
+  { id: 4, char: '六', sound: '여섯', meaning: '륙' },
+  { id: 5, char: '母', sound: '어머니', meaning: '모' },
+  { id: 6, char: '木', sound: '나무', meaning: '목' },
+  { id: 7, char: '門', sound: '문', meaning: '문' },
+  { id: 8, char: '白', sound: '흰', meaning: '백' },
+  { id: 9, char: '父', sound: '아버지', meaning: '부' },
+  { id: 10, char: '四', sound: '넉', meaning: '사' },
+  { id: 11, char: '山', sound: '메', meaning: '산' },
+  { id: 12, char: '三', sound: '석', meaning: '삼' },
+  { id: 13, char: '上', sound: '위', meaning: '상' },
+  { id: 14, char: '小', sound: '작을', meaning: '소' },
+  { id: 15, char: '水', sound: '물', meaning: '수' },
+  { id: 16, char: '十', sound: '열', meaning: '십' },
+  { id: 17, char: '五', sound: '다섯', meaning: '오' },
+  { id: 18, char: '王', sound: '임금', meaning: '왕' },
+  { id: 19, char: '月', sound: '달', meaning: '월' },
+  { id: 20, char: '二', sound: '두', meaning: '이' },
+  { id: 21, char: '人', sound: '사람', meaning: '인' },
+  { id: 22, char: '日', sound: '날', meaning: '일' },
+  { id: 23, char: '一', sound: '한', meaning: '일' },
+  { id: 24, char: '子', sound: '아들', meaning: '자' },
+  { id: 25, char: '中', sound: '가운데', meaning: '중' },
+  { id: 26, char: '七', sound: '일곱', meaning: '칠' },
+  { id: 27, char: '土', sound: '흙', meaning: '토' },
+  { id: 28, char: '八', sound: '여덟', meaning: '팔' },
+  { id: 29, char: '下', sound: '아래', meaning: '하' },
+  { id: 30, char: '火', sound: '불', meaning: '화' }
 ];
 
 // 7급 (20자)
 export const HANJA_LEVEL_7 = [
-  { id: 31, char: '江', sound: '강', meaning: '강' }, { id: 32, char: '工', sound: '장인', meaning: '공' },
-  { id: 33, char: '金', sound: '쇠', meaning: '금' }, { id: 34, char: '男', sound: '남자', meaning: '남' },
-  { id: 35, char: '力', sound: '힘', meaning: '력' }, { id: 36, char: '立', sound: '설', meaning: '립' },
-  { id: 37, char: '目', sound: '눈', meaning: '목' }, { id: 38, char: '百', sound: '일백', meaning: '백' },
-  { id: 39, char: '生', sound: '날', meaning: '생' }, { id: 40, char: '石', sound: '돌', meaning: '석' },
-  { id: 41, char: '手', sound: '손', meaning: '수' }, { id: 42, char: '心', sound: '마음', meaning: '심' },
-  { id: 43, char: '入', sound: '들', meaning: '입' }, { id: 44, char: '自', sound: '스스로', meaning: '자' },
-  { id: 45, char: '足', sound: '발', meaning: '족' }, { id: 46, char: '川', sound: '내', meaning: '천' },
-  { id: 47, char: '千', sound: '일천', meaning: '천' }, { id: 48, char: '天', sound: '하늘', meaning: '천' },
-  { id: 49, char: '出', sound: '날', meaning: '출' }, { id: 50, char: '兄', sound: '형', meaning: '형' }
+  { id: 31, char: '江', sound: '강', meaning: '강' },
+  { id: 32, char: '工', sound: '장인', meaning: '공' },
+  { id: 33, char: '金', sound: '쇠', meaning: '금' },
+  { id: 34, char: '男', sound: '남자', meaning: '남' },
+  { id: 35, char: '力', sound: '힘', meaning: '력' },
+  { id: 36, char: '立', sound: '설', meaning: '립' },
+  { id: 37, char: '目', sound: '눈', meaning: '목' },
+  { id: 38, char: '百', sound: '일백', meaning: '백' },
+  { id: 39, char: '生', sound: '날', meaning: '생' },
+  { id: 40, char: '石', sound: '돌', meaning: '석' },
+  { id: 41, char: '手', sound: '손', meaning: '수' },
+  { id: 42, char: '心', sound: '마음', meaning: '심' },
+  { id: 43, char: '入', sound: '들', meaning: '입' },
+  { id: 44, char: '自', sound: '스스로', meaning: '자' },
+  { id: 45, char: '足', sound: '발', meaning: '족' },
+  { id: 46, char: '川', sound: '내', meaning: '천' },
+  { id: 47, char: '千', sound: '일천', meaning: '천' },
+  { id: 48, char: '天', sound: '하늘', meaning: '천' },
+  { id: 49, char: '出', sound: '날', meaning: '출' },
+  { id: 50, char: '兄', sound: '형', meaning: '형' }
 ];
 
 // 6급 (20자)
 export const HANJA_LEVEL_6 = [
-  { id: 51, char: '南', sound: '남녘', meaning: '남' }, { id: 52, char: '內', sound: '안', meaning: '내' },
-  { id: 53, char: '年', sound: '해', meaning: '년' }, { id: 54, char: '東', sound: '동녘', meaning: '동' },
-  { id: 55, char: '同', sound: '한가지', meaning: '동' }, { id: 56, char: '名', sound: '이름', meaning: '명' },
-  { id: 57, char: '文', sound: '글월', meaning: '문' }, { id: 58, char: '方', sound: '모', meaning: '방' },
-  { id: 59, char: '夫', sound: '남편', meaning: '부' }, { id: 60, char: '北', sound: '북녘', meaning: '북' },
-  { id: 61, char: '西', sound: '서녘', meaning: '서' }, { id: 62, char: '夕', sound: '저녁', meaning: '석' },
-  { id: 63, char: '少', sound: '적을', meaning: '소' }, { id: 64, char: '外', sound: '바깥', meaning: '외' },
-  { id: 65, char: '正', sound: '바를', meaning: '정' }, { id: 66, char: '弟', sound: '동생', meaning: '제' },
-  { id: 67, char: '主', sound: '주인', meaning: '주' }, { id: 68, char: '靑', sound: '푸를', meaning: '청' },
-  { id: 69, char: '寸', sound: '마디', meaning: '촌' }, { id: 70, char: '向', sound: '향할', meaning: '향' }
+  { id: 51, char: '南', sound: '남녘', meaning: '남' },
+  { id: 52, char: '內', sound: '안', meaning: '내' },
+  { id: 53, char: '年', sound: '해', meaning: '년' },
+  { id: 54, char: '東', sound: '동녘', meaning: '동' },
+  { id: 55, char: '同', sound: '한가지', meaning: '동' },
+  { id: 56, char: '名', sound: '이름', meaning: '명' },
+  { id: 57, char: '文', sound: '글월', meaning: '문' },
+  { id: 58, char: '方', sound: '모', meaning: '방' },
+  { id: 59, char: '夫', sound: '남편', meaning: '부' },
+  { id: 60, char: '北', sound: '북녘', meaning: '북' },
+  { id: 61, char: '西', sound: '서녘', meaning: '서' },
+  { id: 62, char: '夕', sound: '저녁', meaning: '석' },
+  { id: 63, char: '少', sound: '적을', meaning: '소' },
+  { id: 64, char: '外', sound: '바깥', meaning: '외' },
+  { id: 65, char: '正', sound: '바를', meaning: '정' },
+  { id: 66, char: '弟', sound: '동생', meaning: '제' },
+  { id: 67, char: '主', sound: '주인', meaning: '주' },
+  { id: 68, char: '靑', sound: '푸를', meaning: '청' },
+  { id: 69, char: '寸', sound: '마디', meaning: '촌' },
+  { id: 70, char: '向', sound: '향할', meaning: '향' }
 ];
 
 // 준5급 (81자)

@@ -223,19 +223,11 @@ const MainMenu = ({ onStartPractice, onStartGame, onStartSoundPuzzle, currentLev
 
 // --- 컴포넌트: 독음 조립 퍼즐 모드 ---
 const SoundPuzzleMode = ({ onBack, data, levelId }) => {
-  // 라운드별 난이도 설정 (3개 라운드당 1초씩 감소)
+  // 라운드별 난이도 설정
   const getRoundConfig = (round) => {
-    // 기본 시간 20초에서 시작, (round-1)/3 만큼 감소. 최소 5초 보장.
-    const timeDecrease = Math.floor((round - 1) / 3);
-    const time = Math.max(5, 20 - timeDecrease);
-
-    // 방해 블록 수
-    let distractors = 1;
-    if (round > 2) distractors = 2;
-    if (round > 5) distractors = 3;
-    if (round > 10) distractors = 4;
-
-    return { time, distractors };
+    if (round <= 2) return { time: 20, distractors: 1 }; // R1~2: 쉬움
+    if (round <= 4) return { time: 15, distractors: 2 }; // R3~4: 보통
+    return { time: 12, distractors: 3 }; // R5+: 어려움
   };
 
   const [round, setRound] = useState(1);
@@ -243,9 +235,9 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
   const [timeLeft, setTimeLeft] = useState(20);
   
   const [currentWord, setCurrentWord] = useState(null);
-  const [poolBlocks, setPoolBlocks] = useState([]); 
-  const [answerBlocks, setAnswerBlocks] = useState([]); 
-  const [gameState, setGameState] = useState('ready'); 
+  const [poolBlocks, setPoolBlocks] = useState([]); // 섞인 블록들 (정답+오답)
+  const [answerBlocks, setAnswerBlocks] = useState([]); // 사용자가 맞춘 블록들
+  const [gameState, setGameState] = useState('ready'); // ready, playing, correct, lost
   const [score, setScore] = useState(0);
   
   // 데이터 준비
@@ -257,9 +249,11 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     setAnswerBlocks([]);
     setGameState('playing');
 
+    // 1. 문제 출제 (랜덤 단어 1개 선택)
     const randomWord = data[Math.floor(Math.random() * data.length)];
     setCurrentWord(randomWord);
 
+    // 2. 오답 블록 생성 (다른 단어들의 음절에서 랜덤 추출)
     const allSyllables = data.flatMap(w => w.syllables);
     const distractors = [];
     while (distractors.length < config.distractors) {
@@ -267,9 +261,11 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
       if (!randomWord.syllables.includes(s)) distractors.push(s);
     }
 
+    // 3. 블록 섞기 (정답 음절 + 오답 음절)
     const mixed = [...randomWord.syllables.map((s, i) => ({ id: `ans-${i}`, text: s, type: 'answer' })), 
                    ...distractors.map((s, i) => ({ id: `dist-${i}`, text: s, type: 'distractor' }))];
     
+    // 셔플
     mixed.sort(() => 0.5 - Math.random());
     setPoolBlocks(mixed);
 
@@ -282,21 +278,18 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     if (gameState !== 'playing') return;
     const timer = setInterval(() => {
       setTimeLeft(prev => {
-        if (prev <= 0.1) { 
-          setGameState('lost'); 
-          vibrateError(); 
-          playSound('error');
-          return 0; 
-        }
+        if (prev <= 0.1) { setGameState('lost'); return 0; }
         return Math.max(0, prev - 0.1);
       });
     }, 100);
     return () => clearInterval(timer);
   }, [gameState]);
 
+  // 블록 클릭 핸들러 (풀 -> 정답칸 이동)
   const handlePoolBlockClick = (block) => {
     if (gameState !== 'playing') return;
-    playSound('click'); 
+    playSound('click'); // 클릭음
+    // speak(block.text); // 음성 제거
     
     if (answerBlocks.length >= currentWord.syllables.length) return;
 
@@ -304,15 +297,17 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     setAnswerBlocks(prev => [...prev, block]);
   };
 
+  // 정답칸 블록 클릭 핸들러 (정답칸 -> 풀 이동)
   const handleAnswerBlockClick = (block) => {
     if (gameState !== 'playing') return;
-    playSound('click');
-    
+    playSound('click'); // 클릭음
+
+    // 정답칸에서 제거하고 풀로 이동
     setAnswerBlocks(prev => prev.filter(b => b.id !== block.id));
     setPoolBlocks(prev => [...prev, block]);
   };
 
-  // 정답 체크
+  // 정답 체크 (블록이 꽉 찼을 때 자동 체크)
   useEffect(() => {
     if (!currentWord || answerBlocks.length !== currentWord.syllables.length) return;
 
@@ -322,52 +317,19 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
       // 정답!
       setGameState('correct');
       setScore(prev => prev + 100 + Math.ceil(timeLeft * 10));
-      vibrateSuccess();
-      playSound('success');
-      
-      // 정답 단어만 읽어줌 (예문은 읽지 않음)
-      speak(currentWord.reading); 
-      
-      // 0.8초 후 빠르게 다음 문제로 넘어감
-      setTimeout(() => initRound(round + 1), 800); 
+      setTimeout(() => initRound(round + 1), 1500);
+    } else {
+      // 오답 (틀렸다는 효과) - 여기선 간단히 0.5초 뒤 초기화
+      // 실제로는 흔들림 효과 등을 줄 수 있음
     }
   }, [answerBlocks, currentWord, round, timeLeft, initRound]);
 
+  // 시간 바
   const timePercent = (timeLeft / maxTime) * 100;
   let barColor = 'bg-purple-500';
   if (timePercent < 30) barColor = 'bg-red-500';
 
   if (!currentWord) return <div>로딩중...</div>;
-
-  const renderSentence = () => {
-    const isRevealed = gameState === 'correct' || gameState === 'lost';
-    const target = currentWord.reading;
-    const sentence = currentWord.example;
-    
-    const parts = sentence.split(target);
-
-    return (
-      <div className="bg-purple-50 p-4 rounded-2xl border-2 border-purple-100 w-full mb-6 relative">
-         <span className="absolute -top-3 left-4 bg-purple-500 text-white text-xs px-2 py-1 rounded-full font-bold">예문</span>
-         <p className="text-xl text-gray-700 font-bold leading-relaxed text-center break-keep">
-           {parts.map((part, index) => (
-             <React.Fragment key={index}>
-               {part}
-               {index < parts.length - 1 && (
-                 <span className={`inline-flex items-center justify-center mx-1 px-2 py-1 rounded-lg transition-all duration-500 ${
-                   isRevealed 
-                     ? "bg-transparent text-purple-600 text-2xl font-black underline decoration-wavy underline-offset-4 scale-110" 
-                     : "bg-gray-300 text-transparent min-w-[3rem]"
-                 }`}>
-                   {isRevealed ? target : '□'.repeat(target.length)}
-                 </span>
-               )}
-             </React.Fragment>
-           ))}
-         </p>
-      </div>
-    );
-  };
 
   return (
     <div className="flex flex-col h-full bg-purple-50 animate-fade-in relative">
@@ -386,25 +348,28 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
                <span className="text-2xl font-black text-purple-600 leading-none">{score}</span>
             </div>
         </div>
-        {/* 타임 게이지 바 */}
-        <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden relative">
-           <div 
-             className={`h-full transition-all duration-100 linear ${barColor}`} 
-             style={{ width: `${timePercent}%` }}
-           ></div>
-           <div className="absolute top-0 right-1 text-[10px] text-gray-500 font-bold">{Math.ceil(timeLeft)}s</div>
+        <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+           <div className={`h-full transition-all duration-100 ${barColor}`} style={{ width: `${timePercent}%` }}></div>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center p-6 pb-24 overflow-y-auto">
-        <div className="w-full text-center mb-6">
-          <h2 className="text-7xl font-black text-gray-800 drop-shadow-sm hanja-font mb-4">
+      <div className="flex-1 flex flex-col items-center p-6 space-y-8 overflow-y-auto">
+        
+        {/* 문제 제시 (한자) */}
+        <div className="w-full text-center space-y-2">
+          <div className="text-gray-500 font-bold text-sm bg-purple-100 inline-block px-3 py-1 rounded-full">
+            독음을 맞춰보세요
+          </div>
+          <h2 className="text-6xl font-black text-gray-800 drop-shadow-sm hanja-font">
             {currentWord.hanja}
           </h2>
-          {renderSentence()}
+          {gameState === 'correct' && (
+             <p className="text-green-600 font-bold animate-bounce mt-2">{currentWord.example}</p>
+          )}
         </div>
 
-        <div className="flex gap-2 min-h-[80px] items-center justify-center p-4 bg-white rounded-2xl w-full border-4 border-dashed border-purple-200 mb-6 shadow-inner">
+        {/* 조립 영역 (정답칸) */}
+        <div className="flex gap-2 min-h-[80px] items-center justify-center p-4 bg-white/50 rounded-2xl w-full border-2 border-dashed border-purple-300">
           {Array.from({ length: currentWord.syllables.length }).map((_, i) => {
             const block = answerBlocks[i];
             return (
@@ -425,6 +390,7 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
           })}
         </div>
 
+        {/* 블록 풀 (선택지) */}
         <div className="flex flex-wrap gap-3 justify-center content-start w-full">
           {poolBlocks.map((block) => (
             <button
@@ -437,18 +403,16 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
           ))}
         </div>
 
+        {/* 게임 오버 */}
         {gameState === 'lost' && (
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6 animate-fade-in">
             <div className="bg-white rounded-[2rem] p-8 w-full max-w-xs text-center shadow-2xl border-8 border-purple-400">
               <div className="text-6xl mb-4">⏰</div>
               <h2 className="text-3xl font-black text-gray-800 mb-2">시간 초과!</h2>
-              <p className="text-xl font-bold text-gray-500 mb-4">정답은?</p>
-              <div className="text-4xl font-black text-purple-600 mb-6 bg-purple-50 p-4 rounded-xl">
-                 {currentWord.reading}
-              </div>
+              <p className="text-xl font-bold text-purple-600 mb-4">정답: {currentWord.reading}</p>
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={onBack} className="bg-gray-100 text-gray-600 py-3 rounded-2xl font-bold hover:bg-gray-200">나가기</button>
-                <button onClick={() => initRound(1)} className="bg-purple-500 text-white py-3 rounded-2xl font-bold hover:bg-purple-600 shadow-md border-b-4 border-purple-700 active:border-b-0 active:translate-y-1">다시 하기</button>
+                <button onClick={onBack} className="bg-gray-100 text-gray-600 py-3 rounded-2xl font-bold">나가기</button>
+                <button onClick={() => initRound(1)} className="bg-purple-500 text-white py-3 rounded-2xl font-bold">다시 하기</button>
               </div>
             </div>
           </div>
@@ -467,13 +431,6 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
   const [feedback, setFeedback] = useState("");
 
   const currentHanja = data[currentIndex];
-
-  // 카드 변경 시 TTS 읽어주기 (연습 모드는 유지)
-  useEffect(() => {
-    if (currentHanja) {
-      speak(`${currentHanja.sound} ${currentHanja.meaning}`);
-    }
-  }, [currentHanja]);
 
   useEffect(() => {
     if (!isScriptLoaded || !containerRef.current || !currentHanja) return;
@@ -505,24 +462,9 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
         setFeedback("잘하고 있어요! 👍");
       },
       onComplete: function(summaryData) {
-        // 랜덤 칭찬 문구 선택
-        const randomPraise = PRAISE_PHRASES[Math.floor(Math.random() * PRAISE_PHRASES.length)];
-        setFeedback(randomPraise);
-        
+        setFeedback("참 잘했어요! 완벽해요! 🎉");
         vibrateSuccess();
         playSound('success');
-        speak(randomPraise); // 칭찬 문구 읽어주기
-        
-        // 1.5초 뒤 다음 글자로 자동 이동
-        setTimeout(() => {
-          // 여기서 handleNext를 직접 호출할 수 없으므로(클로저 문제), 
-          // 버튼 클릭과 동일한 로직을 수행해야 합니다.
-          // 다만 useEffect 안이라 상태 의존성이 복잡하므로,
-          // 아래 handleNext가 호출되도록 리팩토링하거나 간단히 외부 트리거를 사용해야 함.
-          // 여기선 간단히 다음 버튼을 누르는 효과를 줍니다.
-          const nextBtn = document.getElementById('practice-next-btn');
-          if (nextBtn && !nextBtn.disabled) nextBtn.click();
-        }, 1500);
       }
     });
 
@@ -532,7 +474,6 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
     if (currentIndex < data.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setFeedback("");
-      playSound('click');
     }
   };
 
@@ -540,7 +481,6 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
     if (currentIndex > 0) {
       setCurrentIndex(prev => prev - 1);
       setFeedback("");
-      playSound('click');
     }
   };
 
@@ -569,14 +509,8 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
         {/* 학습 카드 */}
         <div className="bg-white rounded-[2.5rem] shadow-xl p-6 w-full max-w-sm border-4 border-white ring-4 ring-blue-100 flex flex-col items-center mb-6">
           <div className="text-center mb-6">
-            <h2 className="text-4xl font-black text-gray-800 mb-2 tracking-tight flex items-center justify-center gap-2">
-              <span>{currentHanja.sound} <span className="text-blue-500">{currentHanja.meaning}</span></span>
-              <button 
-                onClick={() => speak(`${currentHanja.sound} ${currentHanja.meaning}`)}
-                className="p-2 bg-blue-100 rounded-full text-blue-500 hover:bg-blue-200 transition-colors"
-              >
-                <Volume2 size={20} />
-              </button>
+            <h2 className="text-4xl font-black text-gray-800 mb-2 tracking-tight">
+              {currentHanja.sound} <span className="text-blue-500">{currentHanja.meaning}</span>
             </h2>
             <div className="inline-block bg-yellow-100 px-3 py-1 rounded-lg text-yellow-700 font-bold text-sm">
               획순을 따라 그려보세요
@@ -621,7 +555,6 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
           <ArrowLeft size={28} strokeWidth={3} />
         </button>
         <button 
-          id="practice-next-btn" /* 자동 넘김을 위한 ID 추가 */
           onClick={handleNext}
           disabled={currentIndex === data.length - 1}
           className={`p-4 rounded-full shadow-lg transition-all ${currentIndex === data.length - 1 ? 'bg-gray-200 text-gray-400' : 'bg-blue-500 text-white hover:bg-blue-600 hover:scale-110 active:scale-95'}`}
@@ -640,7 +573,7 @@ const GameMode = ({ onBack, data, levelId }) => {
     if (round === 2) return { time: 20, pairs: 6 };
     if (round === 3) return { time: 18, pairs: 8 };
     if (round === 4) return { time: 15, pairs: 8 };
-    if (round >= 5) return { time: 12, pairs: 10 };
+    if (round >= 5) return { time: 12, pairs: 10 }; // 5라운드 이상은 최고 난이도 유지
     return { time: 25, pairs: 6 };
   };
 
@@ -651,15 +584,17 @@ const GameMode = ({ onBack, data, levelId }) => {
   const [tiles, setTiles] = useState([]);
   const [selectedTiles, setSelectedTiles] = useState([]);
   const [matchedIds, setMatchedIds] = useState([]);
-  const [gameState, setGameState] = useState('ready');
+  const [gameState, setGameState] = useState('ready'); // ready, playing, clear, won, lost
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
-  const [comboEffect, setComboEffect] = useState(null); 
+  const [comboEffect, setComboEffect] = useState(null); // 콤보 이펙트 표시용
 
+  // 최고 기록 (로컬 스토리지)
   const [bestScore, setBestScore] = useState(() => {
     return parseInt(localStorage.getItem(`hanja-best-score-${levelId}`) || '0');
   });
 
+  // 라운드 시작
   const startRound = useCallback((roundNum) => {
     const config = getRoundConfig(roundNum);
     setMaxTime(config.time);
@@ -670,7 +605,9 @@ const GameMode = ({ onBack, data, levelId }) => {
     setCombo(0);
     setGameState('playing');
 
+    // 카드 생성
     const pairCount = config.pairs;
+    // 전체 데이터에서 랜덤하게 필요한 쌍만큼 선택
     const shuffledHanja = [...data].sort(() => 0.5 - Math.random()).slice(0, pairCount);
     
     let gameTiles = [];
@@ -679,15 +616,18 @@ const GameMode = ({ onBack, data, levelId }) => {
       gameTiles.push({ id: item.id, type: 'meaning', content: `${item.sound} ${item.meaning}`, uniqueId: `${item.id}-m` });
     });
 
+    // 타일 섞기
     gameTiles.sort(() => 0.5 - Math.random());
     setTiles(gameTiles);
 
   }, [data]);
 
+  // 첫 시작
   useEffect(() => {
     startRound(1);
   }, [startRound]);
 
+  // 타이머 로직
   useEffect(() => {
     if (gameState !== 'playing') return;
 
@@ -695,6 +635,7 @@ const GameMode = ({ onBack, data, levelId }) => {
       setTimeLeft(prev => {
         if (prev <= 0.1) { 
           setGameState('lost'); 
+          // 최고 기록 갱신
           if (score > bestScore) {
             setBestScore(score);
             localStorage.setItem(`hanja-best-score-${levelId}`, score.toString());
@@ -703,33 +644,37 @@ const GameMode = ({ onBack, data, levelId }) => {
           playSound('error');
           return 0; 
         }
-        return Math.max(0, prev - 0.1);
+        return Math.max(0, prev - 0.1); // 0.1초 단위로 부드럽게 감소
       });
     }, 100);
 
     return () => clearInterval(timer);
   }, [gameState, score, bestScore, levelId]);
 
+  // 타일 클릭 핸들러
   const handleTileClick = (tile) => {
     if (gameState !== 'playing') return;
     if (matchedIds.includes(tile.id)) return;
     if (selectedTiles.find(t => t.uniqueId === tile.uniqueId)) return;
     if (selectedTiles.length >= 2) return;
 
-    playSound('click');
-    // speak(tile.content); // 짝꿍 게임에서는 읽어주지 않음
+    playSound('click'); // 클릭음
+    // speak(tile.content); // 음성 제거됨
 
     const newSelected = [...selectedTiles, tile];
     setSelectedTiles(newSelected);
 
     if (newSelected.length === 2) {
+      // 1. 매칭 성공
       if (newSelected[0].id === newSelected[1].id) {
         const newMatchedIds = [...matchedIds, newSelected[0].id];
         setMatchedIds(newMatchedIds);
         
+        // 콤보 계산
         const newCombo = combo + 1;
         setCombo(newCombo);
 
+        // 점수 계산 (기본 100 + 콤보 보너스)
         const baseScore = 100;
         let multiplier = 1;
         if (newCombo >= 5) multiplier = 2.0;
@@ -739,15 +684,18 @@ const GameMode = ({ onBack, data, levelId }) => {
         const addScore = Math.floor(baseScore * multiplier);
         setScore(prev => prev + addScore);
 
+        // [수정] 시간 보너스 추가
+        // 콤보에 따라 시간 추가 (기본 1초, 2콤보 이상 2초, 5콤보 이상 3초)
         let timeBonus = 1;
         if (newCombo >= 2) timeBonus = 2;
         if (newCombo >= 5) timeBonus = 3;
 
-        setTimeLeft(prev => Math.min(prev + timeBonus, maxTime));
+        setTimeLeft(prev => Math.min(prev + timeBonus, maxTime)); // 최대 시간 넘지 않게
 
         vibrateSuccess();
         playSound('success');
 
+        // 콤보 이펙트 표시 (시간 보너스 표시 추가)
         if (newCombo >= 2) {
           setComboEffect(`${newCombo} COMBO! +${addScore} (⏰+${timeBonus}s)`);
           setTimeout(() => setComboEffect(null), 800);
@@ -755,21 +703,25 @@ const GameMode = ({ onBack, data, levelId }) => {
 
         setSelectedTiles([]);
 
+        // 라운드 클리어 체크
         if (newMatchedIds.length === tiles.length / 2) {
+          // 시간 보너스
           const roundTimeBonus = Math.floor(timeLeft * 10);
           setScore(prev => prev + roundTimeBonus);
           setComboEffect(`CLEAR! +${roundTimeBonus}`);
           
           setGameState('clear');
-          playSound('success'); 
+          playSound('success'); // 클리어 사운드
           
+          // 1.5초 후 다음 라운드
           setTimeout(() => {
              startRound(round + 1);
           }, 1500);
         }
 
       } else {
-        setCombo(0);
+        // 2. 매칭 실패
+        setCombo(0); // 콤보 초기화
         vibrateError();
         playSound('error');
         setTimeout(() => {
@@ -779,6 +731,7 @@ const GameMode = ({ onBack, data, levelId }) => {
     }
   };
 
+  // 타임 바 색상 및 퍼센트 계산
   const timePercent = (timeLeft / maxTime) * 100;
   let barColor = 'bg-green-500';
   if (timePercent < 50) barColor = 'bg-yellow-400';
@@ -793,10 +746,12 @@ const GameMode = ({ onBack, data, levelId }) => {
             <button onClick={onBack} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
               <Home size={20} className="text-gray-600" />
             </button>
+            
             <div className="flex flex-col items-center">
                <span className="text-xs font-bold text-gray-400">ROUND</span>
                <span className="text-2xl font-black text-blue-600 leading-none">{round}</span>
             </div>
+
             <div className="flex flex-col items-end">
                <span className="text-xs font-bold text-gray-400">SCORE</span>
                <span className="text-2xl font-black text-green-600 leading-none">{score}</span>
@@ -812,6 +767,7 @@ const GameMode = ({ onBack, data, levelId }) => {
         </div>
       </div>
 
+      {/* 콤보 이펙트 (중앙) */}
       {comboEffect && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50 animate-bounce-short">
           <div className="text-4xl font-black text-yellow-500 drop-shadow-lg stroke-text-white whitespace-nowrap">
@@ -820,7 +776,9 @@ const GameMode = ({ onBack, data, levelId }) => {
         </div>
       )}
 
+      {/* 게임 그리드 */}
       <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+        {/* 라운드 클리어 메시지 */}
         {gameState === 'clear' ? (
            <div className="text-center animate-bounce-short">
              <div className="text-6xl mb-2">🎉</div>
@@ -858,6 +816,7 @@ const GameMode = ({ onBack, data, levelId }) => {
         )}
       </div>
 
+      {/* 게임 오버 결과 화면 */}
       {(gameState === 'lost') && (
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6 animate-fade-in">
           <div className="bg-white rounded-[2rem] p-8 w-full max-w-xs text-center shadow-2xl border-8 border-yellow-400 transform transition-all scale-105">
@@ -912,7 +871,7 @@ export default function App() {
   const getCurrentData = () => {
     // LEVELS 배열은 이제 hanjaData.js에서 가져오므로 여기서도 접근 가능
     const levelObj = LEVELS.find(l => l.id === currentLevel);
-    return levelObj ? levelObj.data : LEVELS[0].data; 
+    return levelObj ? levelObj.data : LEVELS[0].data; // 기본값 안전 처리
   };
 
   // 현재 레벨에 맞는 단어 데이터 가져오기 (독음 퍼즐용)
