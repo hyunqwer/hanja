@@ -22,7 +22,6 @@ const PRAISE_PHRASES = [
 ];
 
 // --- 유틸리티: 소리 효과 (Web Audio API 최적화) ---
-// AudioContext를 싱글톤으로 관리하여 메모리 누수 및 재생 중단 방지
 const audioCtxRef = { current: null };
 
 const getAudioContext = () => {
@@ -298,7 +297,6 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
   const handlePoolBlockClick = (block) => {
     if (gameState !== 'playing') return;
     playSound('click'); 
-    speak(block.text); // 블록 글자 읽기
     
     if (answerBlocks.length >= currentWord.syllables.length) return;
 
@@ -327,10 +325,10 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
       vibrateSuccess();
       playSound('success');
       
-      // 정답 단어만 읽어줌 (예문 읽지 않음)
+      // 정답 단어만 읽어줌 (예문은 읽지 않음)
       speak(currentWord.reading); 
       
-      // 정답 확인 후 빠르게 넘어감 (0.8초)
+      // 0.8초 후 빠르게 다음 문제로 넘어감
       setTimeout(() => initRound(round + 1), 800); 
     }
   }, [answerBlocks, currentWord, round, timeLeft, initRound]);
@@ -346,7 +344,6 @@ const SoundPuzzleMode = ({ onBack, data, levelId }) => {
     const target = currentWord.reading;
     const sentence = currentWord.example;
     
-    // 예문 나누기
     const parts = sentence.split(target);
 
     return (
@@ -471,7 +468,7 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
 
   const currentHanja = data[currentIndex];
 
-  // 카드 변경 시 TTS 읽어주기
+  // 카드 변경 시 TTS 읽어주기 (연습 모드는 유지)
   useEffect(() => {
     if (currentHanja) {
       speak(`${currentHanja.sound} ${currentHanja.meaning}`);
@@ -523,8 +520,8 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
           // 다만 useEffect 안이라 상태 의존성이 복잡하므로,
           // 아래 handleNext가 호출되도록 리팩토링하거나 간단히 외부 트리거를 사용해야 함.
           // 여기선 간단히 다음 버튼을 누르는 효과를 줍니다.
-          const nextBtn = document.getElementById('next-btn');
-          if (nextBtn) nextBtn.click();
+          const nextBtn = document.getElementById('practice-next-btn');
+          if (nextBtn && !nextBtn.disabled) nextBtn.click();
         }, 1500);
       }
     });
@@ -624,7 +621,7 @@ const PracticeMode = ({ onBack, isScriptLoaded, data }) => {
           <ArrowLeft size={28} strokeWidth={3} />
         </button>
         <button 
-          id="next-btn" /* 자동 넘김을 위한 ID 추가 */
+          id="practice-next-btn" /* 자동 넘김을 위한 ID 추가 */
           onClick={handleNext}
           disabled={currentIndex === data.length - 1}
           className={`p-4 rounded-full shadow-lg transition-all ${currentIndex === data.length - 1 ? 'bg-gray-200 text-gray-400' : 'bg-blue-500 text-white hover:bg-blue-600 hover:scale-110 active:scale-95'}`}
@@ -720,7 +717,7 @@ const GameMode = ({ onBack, data, levelId }) => {
     if (selectedTiles.length >= 2) return;
 
     playSound('click');
-    speak(tile.content);
+    // speak(tile.content); // 짝꿍 게임에서는 읽어주지 않음
 
     const newSelected = [...selectedTiles, tile];
     setSelectedTiles(newSelected);
@@ -789,7 +786,9 @@ const GameMode = ({ onBack, data, levelId }) => {
 
   return (
     <div className="flex flex-col h-full bg-green-50 animate-fade-in relative">
+      {/* 상단 UI (라운드 / 타임바 / 점수) */}
       <div className="bg-white p-3 shadow-md z-10 rounded-b-3xl border-b-4 border-green-100 space-y-2">
+        {/* 상단: 홈 / 라운드 / 점수 */}
         <div className="flex items-center justify-between">
             <button onClick={onBack} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
               <Home size={20} className="text-gray-600" />
@@ -803,6 +802,8 @@ const GameMode = ({ onBack, data, levelId }) => {
                <span className="text-2xl font-black text-green-600 leading-none">{score}</span>
             </div>
         </div>
+
+        {/* 타임 바 */}
         <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden relative shadow-inner">
            <div 
              className={`h-full transition-all duration-100 ease-linear ${barColor} ${timePercent < 20 ? 'animate-pulse' : ''}`}

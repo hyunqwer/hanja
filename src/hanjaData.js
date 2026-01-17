@@ -1,11 +1,14 @@
 // ==========================================
-// [데이터 전용 파일]
+// [데이터 전용 파일] src/hanjaData.js
 // 한자 및 교과서 어휘 데이터를 이곳에서 통합 관리합니다.
 // ==========================================
 
 // ----------------------------------------------------------------------
-// 1. 기초 한자 데이터 (쓰기/매칭 게임용)
+// [PART 1] 기초 한자 데이터 (쓰기/매칭 게임용)
+// * 현대적 훈음 반영 (계집->여자, 사내->남자 등)
 // ----------------------------------------------------------------------
+
+// 8급 (30자)
 export const HANJA_LEVEL_8 = [
   { id: 1, char: '九', sound: '아홉', meaning: '구' }, { id: 2, char: '口', sound: '입', meaning: '구' },
   { id: 3, char: '女', sound: '여자', meaning: '녀' }, { id: 4, char: '六', sound: '여섯', meaning: '륙' },
@@ -24,9 +27,10 @@ export const HANJA_LEVEL_8 = [
   { id: 29, char: '下', sound: '아래', meaning: '하' }, { id: 30, char: '火', sound: '불', meaning: '화' }
 ];
 
+// 7급 (20자)
 export const HANJA_LEVEL_7 = [
   { id: 31, char: '江', sound: '강', meaning: '강' }, { id: 32, char: '工', sound: '장인', meaning: '공' },
-  { id: 33, char: '金', sound: '쇠', meaning: '금' }, { id: 34, char: '男', sound: '사내', meaning: '남' },
+  { id: 33, char: '金', sound: '쇠', meaning: '금' }, { id: 34, char: '男', sound: '남자', meaning: '남' },
   { id: 35, char: '力', sound: '힘', meaning: '력' }, { id: 36, char: '立', sound: '설', meaning: '립' },
   { id: 37, char: '目', sound: '눈', meaning: '목' }, { id: 38, char: '百', sound: '일백', meaning: '백' },
   { id: 39, char: '生', sound: '날', meaning: '생' }, { id: 40, char: '石', sound: '돌', meaning: '석' },
@@ -34,22 +38,24 @@ export const HANJA_LEVEL_7 = [
   { id: 43, char: '入', sound: '들', meaning: '입' }, { id: 44, char: '自', sound: '스스로', meaning: '자' },
   { id: 45, char: '足', sound: '발', meaning: '족' }, { id: 46, char: '川', sound: '내', meaning: '천' },
   { id: 47, char: '千', sound: '일천', meaning: '천' }, { id: 48, char: '天', sound: '하늘', meaning: '천' },
-  { id: 49, char: '出', sound: '날', meaning: '출' }, { id: 50, char: '兄', sound: '맏', meaning: '형' }
+  { id: 49, char: '出', sound: '날', meaning: '출' }, { id: 50, char: '兄', sound: '형', meaning: '형' }
 ];
 
+// 6급 (20자)
 export const HANJA_LEVEL_6 = [
   { id: 51, char: '南', sound: '남녘', meaning: '남' }, { id: 52, char: '內', sound: '안', meaning: '내' },
   { id: 53, char: '年', sound: '해', meaning: '년' }, { id: 54, char: '東', sound: '동녘', meaning: '동' },
   { id: 55, char: '同', sound: '한가지', meaning: '동' }, { id: 56, char: '名', sound: '이름', meaning: '명' },
   { id: 57, char: '文', sound: '글월', meaning: '문' }, { id: 58, char: '方', sound: '모', meaning: '방' },
-  { id: 59, char: '夫', sound: '지아비', meaning: '부' }, { id: 60, char: '北', sound: '북녘', meaning: '북' },
+  { id: 59, char: '夫', sound: '남편', meaning: '부' }, { id: 60, char: '北', sound: '북녘', meaning: '북' },
   { id: 61, char: '西', sound: '서녘', meaning: '서' }, { id: 62, char: '夕', sound: '저녁', meaning: '석' },
   { id: 63, char: '少', sound: '적을', meaning: '소' }, { id: 64, char: '外', sound: '바깥', meaning: '외' },
-  { id: 65, char: '正', sound: '바를', meaning: '정' }, { id: 66, char: '弟', sound: '아우', meaning: '제' },
+  { id: 65, char: '正', sound: '바를', meaning: '정' }, { id: 66, char: '弟', sound: '동생', meaning: '제' },
   { id: 67, char: '主', sound: '주인', meaning: '주' }, { id: 68, char: '靑', sound: '푸를', meaning: '청' },
   { id: 69, char: '寸', sound: '마디', meaning: '촌' }, { id: 70, char: '向', sound: '향할', meaning: '향' }
 ];
 
+// 준5급 (81자)
 export const HANJA_LEVEL_5_JUN = [
   { id: 71, char: '歌', sound: '노래', meaning: '가' }, { id: 72, char: '家', sound: '집', meaning: '가' },
   { id: 73, char: '間', sound: '사이', meaning: '간' }, { id: 74, char: '車', sound: '수레', meaning: '거' },
@@ -94,6 +100,7 @@ export const HANJA_LEVEL_5_JUN = [
   { id: 151, char: '休', sound: '쉴', meaning: '휴' }
 ];
 
+// 5급 (110자)
 export const HANJA_LEVEL_5 = [
   { id: 152, char: '各', sound: '각각', meaning: '각' }, { id: 153, char: '感', sound: '느낄', meaning: '감' },
   { id: 154, char: '强', sound: '강할', meaning: '강' }, { id: 155, char: '開', sound: '열', meaning: '개' },
@@ -173,74 +180,133 @@ export const HANJA_LEVEL_5 = [
 ];
 
 // ----------------------------------------------------------------------
-// 2. 교과서 한자어 데이터 (독음 조립 퍼즐 게임용)
+// [PART 2] 교과서 한자어 데이터 (독음 조립 퍼즐 게임용)
 // ----------------------------------------------------------------------
 export const WORDS_TEXTBOOK_8 = [
-  { id: 1, word: "부모", hanja: "父母", reading: "부모", syllables: ["부", "모"], hanjaChars: ["父", "母"], example: "나를 낳아주신 부모님을 사랑해요." },
-  { id: 2, word: "부자", hanja: "父子", reading: "부자", syllables: ["부", "자"], hanjaChars: ["父", "子"], example: "아버지와 아들이 함께 목욕탕에 갔어요." },
-  { id: 3, word: "모자", hanja: "母子", reading: "모자", syllables: ["모", "자"], hanjaChars: ["母", "子"], example: "어머니와 아들, 모자가 다정하게 산책을 해요." },
-  { id: 4, word: "왕자", hanja: "王子", reading: "왕자", syllables: ["왕", "자"], hanjaChars: ["王", "子"], example: "동화책 속에 멋진 왕자님이 등장해요." },
-  { id: 5, word: "여자", hanja: "女子", reading: "여자", syllables: ["여", "자"], hanjaChars: ["女", "子"], example: "교실에 여자 어린이가 다섯 명 있어요." },
-  { id: 6, word: "산수", hanja: "山水", reading: "산수", syllables: ["산", "수"], hanjaChars: ["山", "水"], example: "우리나라는 산수가 아름다운 곳이 많아요." },
-  { id: 7, word: "일월", hanja: "日月", reading: "일월", syllables: ["일", "월"], hanjaChars: ["日", "月"], example: "해와 달을 합쳐 일월이라고 해요." },
-  { id: 8, word: "상하", hanja: "上下", reading: "상하", syllables: ["상", "하"], hanjaChars: ["上", "下"], example: "엘리베이터가 상하로 움직여요." },
-  { id: 9, word: "상산", hanja: "上山", reading: "상산", syllables: ["상", "산"], hanjaChars: ["上", "山"], example: "건강을 위해 아침 일찍 산에 올랐어요(상산)." },
-  { id: 10, word: "하산", hanja: "下山", reading: "하산", syllables: ["하", "산"], hanjaChars: ["下", "山"], example: "해가 지기 전에 서둘러 산을 내려왔어요." },
-  { id: 11, word: "산화", hanja: "山火", reading: "산화", syllables: ["산", "화"], hanjaChars: ["山", "火"], example: "건조한 날씨에는 산화(산불)를 조심해야 해요." },
-  { id: 12, word: "화산", hanja: "火山", reading: "화산", syllables: ["화", "산"], hanjaChars: ["火", "山"], example: "제주도에는 오래된 화산인 한라산이 있어요." },
-  { id: 13, word: "인구", hanja: "人口", reading: "인구", syllables: ["인", "구"], hanjaChars: ["人", "口"], example: "서울에는 많은 인구가 살고 있어요." },
-  { id: 14, word: "수중", hanja: "水中", reading: "수중", syllables: ["수", "중"], hanjaChars: ["水", "中"], example: "물안경을 쓰고 수중 생물을 관찰했어요." },
-  { id: 15, word: "백인", hanja: "白人", reading: "백인", syllables: ["백", "인"], hanjaChars: ["白", "人"], example: "피부색이 하얀 사람을 백인이라고 불러요." }
+  { id: 1, word: "공부", hanja: "工夫", reading: "공부", syllables: ["공", "부"], hanjaChars: ["工", "夫"], example: "나는 매일 아침 30분씩 책 읽기 공부를 해요." },
+  { id: 2, word: "내용", hanja: "內容", reading: "내용", syllables: ["내", "용"], hanjaChars: ["內", "容"], example: "이 동화책의 내용은 정말 재미있어요." },
+  { id: 3, word: "동물", hanja: "動物", reading: "동물", syllables: ["동", "물"], hanjaChars: ["動", "物"], example: "동물원에서 사자와 호랑이를 보았어요." },
+  { id: 4, word: "문장", hanja: "文章", reading: "문장", syllables: ["문", "장"], hanjaChars: ["文", "章"], example: "단어를 사용하여 짧은 문장을 만들어 보세요." },
+  { id: 5, word: "사물", hanja: "事物", reading: "사물", syllables: ["사", "물"], hanjaChars: ["事", "物"], example: "주변의 사물을 관찰하고 그림을 그려요." },
+  { id: 6, word: "생활", hanja: "生活", reading: "생활", syllables: ["생", "활"], hanjaChars: ["生", "活"], example: "규칙적인 생활을 하면 건강해져요." },
+  { id: 7, word: "선생님", hanja: "先生님", reading: "선생님", syllables: ["선", "생", "님"], hanjaChars: ["先", "生", "님"], example: "선생님, 질문이 있어요!" },
+  { id: 8, word: "식물", hanja: "植物", reading: "식물", syllables: ["식", "물"], hanjaChars: ["植", "物"], example: "교실 창가에서 작은 식물을 키우고 있어요." },
+  { id: 9, word: "의견", hanja: "意見", reading: "의견", syllables: ["의", "견"], hanjaChars: ["意", "見"], example: "친구들과 서로의 의견을 나누었어요." },
+  { id: 10, word: "인물", hanja: "人物", reading: "인물", syllables: ["인", "물"], hanjaChars: ["人", "物"], example: "이순신 장군은 우리 역사에서 훌륭한 인물입니다." },
+  { id: 11, word: "주의", hanja: "注意", reading: "주의", syllables: ["주", "의"], hanjaChars: ["注", "意"], example: "길을 건널 때는 차를 주의해야 해요." },
+  { id: 12, word: "친구", hanja: "親舊", reading: "친구", syllables: ["친", "구"], hanjaChars: ["親", "舊"], example: "운동장에서 친구들과 축구를 했어요." },
+  { id: 13, word: "학교", hanja: "學校", reading: "학교", syllables: ["학", "교"], hanjaChars: ["學", "校"], example: "우리 학교는 언덕 위에 있어요." }
 ];
 
 export const WORDS_TEXTBOOK_7 = [
-{ id: 1, word: "입구", hanja: "入口", reading: "입구", syllables: ["입", "구"], hanjaChars: ["入", "口"], example: "공원 입구에서 친구를 만나기로 했어요." },
-  { id: 2, word: "출구", hanja: "出口", reading: "출구", syllables: ["출", "구"], hanjaChars: ["出", "口"], example: "비상시에는 비상 출구를 이용하세요." },
-  { id: 3, word: "출입", hanja: "出入", reading: "출입", syllables: ["출", "입"], hanjaChars: ["出", "入"], example: "이곳은 관계자 외 출입 금지 구역입니다." },
-  { id: 4, word: "강산", hanja: "江山", reading: "강산", syllables: ["강", "산"], hanjaChars: ["江", "山"], example: "우리나라의 아름다운 강산을 보호해요." },
-  { id: 5, word: "산천", hanja: "山川", reading: "산천", syllables: ["산", "천"], hanjaChars: ["山", "川"], example: "고향의 산천이 그리워요." },
-  { id: 6, word: "인공", hanja: "人工", reading: "인공", syllables: ["인", "공"], hanjaChars: ["人", "工"], example: "이 호수는 사람이 만든 인공 호수예요." },
-  { id: 7, word: "인력", hanja: "人力", reading: "인력", syllables: ["인", "력"], hanjaChars: ["人", "力"], example: "기계 대신 인력으로 짐을 옮겼어요." },
-  { id: 8, word: "자력", hanja: "自力", reading: "자력", syllables: ["자", "력"], hanjaChars: ["自", "力"], example: "넘어져도 자력으로 다시 일어났어요." },
-  { id: 9, word: "천하", hanja: "天下", reading: "천하", syllables: ["천", "하"], hanjaChars: ["天", "下"], example: "천하장사처럼 힘이 셌어요." },
-  { id: 10, word: "생일", hanja: "生日", reading: "생일", syllables: ["생", "일"], hanjaChars: ["生", "日"], example: "오늘은 제가 태어난 생일이에요." },
-  { id: 11, word: "일생", hanja: "一生", reading: "일생", syllables: ["일", "생"], hanjaChars: ["一", "生"], example: "그는 일생 동안 남을 도우며 살았어요." },
-  { id: 12, word: "인생", hanja: "人生", reading: "인생", syllables: ["인", "생"], hanjaChars: ["人", "生"], example: "즐거운 인생을 살기 위해 노력해요." },
-  { id: 13, word: "수족", hanja: "手足", reading: "수족", syllables: ["수", "족"], hanjaChars: ["手", "足"], example: "날씨가 추워서 수족이 꽁꽁 얼었어요." },
-  { id: 14, word: "석공", hanja: "石工", reading: "석공", syllables: ["석", "공"], hanjaChars: ["石", "工"], example: "석공이 돌을 깎아 조각상을 만들어요." },
-  { id: 15, word: "수력", hanja: "水力", reading: "수력", syllables: ["수", "력"], hanjaChars: ["水", "力"], example: "수력 발전소는 물의 힘으로 전기를 만들어요." },
-  { id: 16, word: "화력", hanja: "火力", reading: "화력", syllables: ["화", "력"], hanjaChars: ["火", "力"], example: "이 난로는 화력이 아주 강해요." },
-  { id: 17, word: "백금", hanja: "白金", reading: "백금", syllables: ["백", "금"], hanjaChars: ["白", "金"], example: "백금 반지가 반짝반짝 빛나요." },
-  { id: 18, word: "중심", hanja: "中心", reading: "중심", syllables: ["중", "심"], hanjaChars: ["中", "心"], example: "원을 그릴 때는 중심을 잘 잡아야 해요." },
-  { id: 19, word: "소심", hanja: "小心", reading: "소심", syllables: ["소", "심"], hanjaChars: ["小", "心"], example: "소심한 성격을 고치고 용기를 냈어요." },
-  { id: 20, word: "자립", hanja: "自立", reading: "자립", syllables: ["자", "립"], hanjaChars: ["自", "立"], example: "스스로 서는 것을 자립이라고 해요." },
-  { id: 21, word: "문학", hanja: "文學", reading: "문학", syllables: ["문", "학"], hanjaChars: ["文", "學"], example: "나는 커서 시를 쓰는 문학가가 되고 싶어." },
-  { id: 22, word: "수문", hanja: "水門", reading: "수문", syllables: ["수", "문"], hanjaChars: ["水", "門"], example: "댐의 수문을 열어 물을 흘려보냈어요." }
+  { id: 1, word: "계산", hanja: "計算", reading: "계산", syllables: ["계", "산"], hanjaChars: ["計", "算"], example: "수학 시간에 덧셈 계산 문제를 풀었어요." },
+  { id: 2, word: "계획", hanja: "計劃", reading: "계획", syllables: ["계", "획"], hanjaChars: ["計", "劃"], example: "방학 동안 할 일을 계획해 보았어요." },
+  { id: 3, word: "교실", hanja: "敎室", reading: "교실", syllables: ["교", "실"], hanjaChars: ["敎", "室"], example: "우리 교실은 2층에 있어요." },
+  { id: 4, word: "규칙", hanja: "規則", reading: "규칙", syllables: ["규", "칙"], hanjaChars: ["規", "則"], example: "게임을 할 때는 규칙을 잘 지켜야 해요." },
+  { id: 5, word: "모형", hanja: "模型", reading: "모형", syllables: ["모", "형"], hanjaChars: ["模", "型"], example: "점토로 자동차 모형을 만들었어요." },
+  { id: 6, word: "문법", hanja: "文法", reading: "문법", syllables: ["문", "법"], hanjaChars: ["文", "法"], example: "글을 쓸 때는 문법에 맞게 써야 해요." },
+  { id: 7, word: "민속", hanja: "民俗", reading: "민속", syllables: ["민", "속"], hanjaChars: ["民", "俗"], example: "박물관에서 민속 놀이 체험을 했어요." },
+  { id: 8, word: "발음", hanja: "發音", reading: "발음", syllables: ["발", "음"], hanjaChars: ["發", "音"], example: "영어 단어의 발음을 정확하게 연습해요." },
+  { id: 9, word: "방법", hanja: "方法", reading: "방법", syllables: ["방", "법"], hanjaChars: ["方", "法"], example: "문제를 해결할 수 있는 좋은 방법이 있을까요?" },
+  { id: 10, word: "배열", hanja: "配列", reading: "배열", syllables: ["배", "열"], hanjaChars: ["配", "列"], example: "숫자를 순서대로 배열해 보세요." },
+  { id: 11, word: "변", hanja: "邊", reading: "변", syllables: ["변"], hanjaChars: ["邊"], example: "삼각형은 세 개의 변으로 이루어져 있어요." },
+  { id: 12, word: "부호", hanja: "符號", reading: "부호", syllables: ["부", "호"], hanjaChars: ["符", "號"], example: "더하기와 빼기는 수학 부호입니다." },
+  { id: 13, word: "분명", hanja: "分明", reading: "분명", syllables: ["분", "명"], hanjaChars: ["分", "明"], example: "내 생각에 정답은 이것이 분명해요." },
+  { id: 14, word: "삼각형", hanja: "三角形", reading: "삼각형", syllables: ["삼", "각", "형"], hanjaChars: ["三", "角", "形"], example: "색종이를 오려서 삼각형을 만들었어요." },
+  { id: 15, word: "상상", hanja: "想像", reading: "상상", syllables: ["상", "상"], hanjaChars: ["想", "像"], example: "미래의 내 모습을 상상해 보았어요." },
+  { id: 16, word: "선", hanja: "線", reading: "선", syllables: ["선"], hanjaChars: ["線"], example: "자와 연필을 이용해 곧은 선을 그어요." },
+  { id: 17, word: "선심", hanja: "善心", reading: "선심", syllables: ["선", "심"], hanjaChars: ["善", "心"], example: "할머니께서 나에게 과자를 주시며 선심을 쓰셨다." },
+  { id: 18, word: "시", hanja: "詩", reading: "시", syllables: ["시"], hanjaChars: ["詩"], example: "국어 시간에 재미있는 시를 읽었어요." },
+  { id: 19, word: "시간", hanja: "時間", reading: "시간", syllables: ["시", "간"], hanjaChars: ["時", "間"], example: "점심 시간은 12시부터입니다." },
+  { id: 20, word: "시계", hanja: "時計", reading: "시계", syllables: ["시", "계"], hanjaChars: ["時", "計"], example: "벽에 걸린 시계를 보고 시간을 확인해요." },
+  { id: 21, word: "식", hanja: "式", reading: "식", syllables: ["식"], hanjaChars: ["式"], example: "문제를 읽고 알맞은 계산 식을 세워 보세요." },
+  { id: 22, word: "신호", hanja: "信號", reading: "신호", syllables: ["신", "호"], hanjaChars: ["信", "號"], example: "초록 불 신호가 켜지면 길을 건너요." },
+  { id: 23, word: "실감", hanja: "實感", reading: "실감", syllables: ["실", "감"], hanjaChars: ["實", "感"], example: "영화가 너무 재미있어서 시간 가는 줄도 모르고 실감 나게 봤어요." },
+  { id: 24, word: "안전", hanja: "安全", reading: "안전", syllables: ["안", "전"], hanjaChars: ["安", "全"], example: "자전거를 탈 때는 안전 모자를 써야 해요." },
+  { id: 25, word: "역할", hanja: "役割", reading: "역할", syllables: ["역", "할"], hanjaChars: ["役", "割"], example: "모둠 활동에서 각자 맡은 역할을 잘해야 해요." },
+  { id: 26, word: "오전", hanja: "午前", reading: "오전", syllables: ["오", "전"], hanjaChars: ["午", "前"], example: "우리는 오전 9시에 학교에 도착해요." },
+  { id: 27, word: "오후", hanja: "午後", reading: "오후", syllables: ["오", "후"], hanjaChars: ["午", "後"], example: "오후에는 친구들과 놀이터에서 놀았어요." },
+  { id: 28, word: "원", hanja: "圓", reading: "원", syllables: ["원"], hanjaChars: ["圓"], example: "동그란 모양을 원이라고 해요." },
+  { id: 29, word: "자세", hanja: "姿勢", reading: "자세", syllables: ["자", "세"], hanjaChars: ["姿", "勢"], example: "의자에 앉을 때는 바른 자세로 앉아요." },
+  { id: 30, word: "자연", hanja: "自然", reading: "자연", syllables: ["자", "연"], hanjaChars: ["自", "然"], example: "우리는 아름다운 자연을 보호해야 해요." },
+  { id: 31, word: "장면", hanja: "場面", reading: "장면", syllables: ["장", "면"], hanjaChars: ["場", "面"], example: "이 연극에서 가장 재미있는 장면은 여기예요." },
+  { id: 32, word: "정리", hanja: "整理", reading: "정리", syllables: ["정", "리"], hanjaChars: ["整", "理"], example: "공부가 끝나면 책상을 깨끗이 정리해요." },
+  { id: 33, word: "정직", hanja: "正直", reading: "정직", syllables: ["정", "직"], hanjaChars: ["正", "直"], example: "거짓말을 하지 않는 정직한 어린이가 됩시다." },
+  { id: 34, word: "정확", hanja: "正確", reading: "정확", syllables: ["정", "확"], hanjaChars: ["正", "確"], example: "시계가 정확한 시간을 알려줘요." },
+  { id: 35, word: "준비", hanja: "準備", reading: "준비", syllables: ["준", "비"], hanjaChars: ["準", "備"], example: "내일 학교 갈 준비물을 미리 챙겨요." },
+  { id: 36, word: "중요", hanja: "重要", reading: "중요", syllables: ["중", "요"], hanjaChars: ["重", "要"], example: "아침밥을 먹는 것은 건강에 중요해요." },
+  { id: 37, word: "질문", hanja: "質問", reading: "질문", syllables: ["질", "문"], hanjaChars: ["質", "問"], example: "모르는 것이 있으면 선생님께 질문해요." },
+  { id: 38, word: "체육", hanja: "體育", reading: "체육", syllables: ["체", "육"], hanjaChars: ["體", "育"], example: "체육 시간에 줄넘기를 했어요." },
+  { id: 39, word: "체험", hanja: "體驗", reading: "체험", syllables: ["체", "험"], hanjaChars: ["體", "驗"], example: "농장에서 고구마 캐기 체험을 했어요." },
+  { id: 40, word: "학년", hanja: "學年", reading: "학년", syllables: ["학", "년"], hanjaChars: ["學", "年"], example: "나는 내년에 3학년이 돼요." },
+  { id: 41, word: "학습", hanja: "學習", reading: "학습", syllables: ["학", "습"], hanjaChars: ["學", "習"], example: "오늘 학습한 내용을 복습했어요." },
+  { id: 42, word: "환경", hanja: "環境", reading: "환경", syllables: ["환", "경"], hanjaChars: ["環", "境"], example: "쓰레기를 줄여서 환경을 보호해요." },
+  { id: 43, word: "활동", hanja: "活動", reading: "활동", syllables: ["활", "동"], hanjaChars: ["活", "動"], example: "모둠 친구들과 함께 만들기 활동을 했어요." }
 ];
+
 export const WORDS_TEXTBOOK_6 = [
-{ id: 1, word: "공부", hanja: "工夫", reading: "공부", syllables: ["공", "부"], hanjaChars: ["工", "夫"], example: "매일 30분씩 꾸준히 공부를 해요." },
-  { id: 2, word: "형제", hanja: "兄弟", reading: "형제", syllables: ["형", "제"], hanjaChars: ["兄", "弟"], example: "우리는 사이좋은 형제입니다." },
-  { id: 3, word: "제자", hanja: "弟子", reading: "제자", syllables: ["제", "자"], hanjaChars: ["弟", "子"], example: "선생님과 제자가 함께 청소를 했어요." },
-  { id: 4, word: "주인", hanja: "主人", reading: "주인", syllables: ["주", "인"], hanjaChars: ["主", "人"], example: "이 가게의 주인은 아주 친절해요." },
-  { id: 5, word: "사방", hanja: "四方", reading: "사방", syllables: ["사", "방"], hanjaChars: ["四", "方"], example: "사방이 꽃으로 둘러싸여 있어요." },
-  { id: 6, word: "방향", hanja: "方向", reading: "방향", syllables: ["방", "향"], hanjaChars: ["方", "向"], example: "나침반을 보고 방향을 찾았어요." },
-  { id: 7, word: "소년", hanja: "少年", reading: "소년", syllables: ["소", "년"], hanjaChars: ["少", "年"], example: "운동장에서 소년들이 축구를 하고 있어요." },
-  { id: 8, word: "소녀", hanja: "少女", reading: "소녀", syllables: ["소", "녀"], hanjaChars: ["少", "女"], example: "책을 읽고 있는 소녀의 모습이 예뻐요." },
-  { id: 9, word: "외출", hanja: "外出", reading: "외출", syllables: ["외", "출"], hanjaChars: ["外", "出"], example: "주말에는 가족과 함께 외출을 해요." },
-  { id: 10, word: "정문", hanja: "正門", reading: "정문", syllables: ["정", "문"], hanjaChars: ["正", "門"], example: "학교 정문 앞에서 만나기로 했어요." },
-  { id: 11, word: "사촌", hanja: "四寸", reading: "사촌", syllables: ["사", "촌"], hanjaChars: ["四", "寸"], example: "명절에 사촌들을 만나서 즐겁게 놀았어요." },
-  { id: 12, word: "삼촌", hanja: "三寸", reading: "삼촌", syllables: ["삼", "촌"], hanjaChars: ["三", "寸"], example: "삼촌이 맛있는 과자를 사주셨어요." },
-  { id: 13, word: "청산", hanja: "靑山", reading: "청산", syllables: ["청", "산"], hanjaChars: ["靑", "山"], example: "푸른 산을 청산이라고 해요." },
-  { id: 14, word: "청소년", hanja: "靑少年", reading: "청소년", syllables: ["청", "소", "년"], hanjaChars: ["靑", "少", "年"], example: "청소년을 위한 도서관이 생겼어요." },
-  { id: 15, word: "동생", hanja: "同生", reading: "동생", syllables: ["동", "생"], hanjaChars: ["同", "生"], example: "내 동생은 귀여워요." },
-  { id: 16, word: "동문", hanja: "同門", reading: "동문", syllables: ["동", "문"], hanjaChars: ["同", "門"], example: "우리는 같은 학교를 나온 동문이에요." },
-  { id: 17, word: "내외", hanja: "內外", reading: "내외", syllables: ["내", "외"], hanjaChars: ["內", "外"], example: "건물 내외를 깨끗이 청소했어요." },
-  { id: 18, word: "남북", hanja: "南北", reading: "남북", syllables: ["남", "북"], hanjaChars: ["南", "北"], example: "자석은 남북을 가리키는 성질이 있어요." },
-  { id: 19, word: "동서", hanja: "東西", reading: "동서", syllables: ["동", "서"], hanjaChars: ["東", "西"], example: "해는 동쪽에서 뜨고 서쪽으로 져요(동서)." },
-  { id: 20, word: "서북", hanja: "西北", reading: "서북", syllables: ["서", "북"], hanjaChars: ["西", "北"], example: "서북쪽에서 찬 바람이 불어와요." },
-  { id: 21, word: "천문", hanja: "天文", reading: "천문", syllables: ["천", "문"], hanjaChars: ["天", "文"], example: "별과 우주를 연구하는 것을 천문학이라고 해요." },
-  { id: 22, word: "인문", hanja: "人文", reading: "인문", syllables: ["인", "문"], hanjaChars: ["人", "文"], example: "사람의 문화와 역사를 배우는 인문학 책을 읽었어요." },
-  { id: 23, word: "명문", hanja: "名文", reading: "명문", syllables: ["명", "문"], hanjaChars: ["名", "文"], example: "이 글은 아주 잘 쓴 명문이에요." }
+  { id: 1, word: "가열", hanja: "加熱", reading: "가열", syllables: ["가", "열"], hanjaChars: ["加", "熱"], example: "물을 냄비에 넣고 가열하면 수증기가 돼요." },
+  { id: 2, word: "각", hanja: "角", reading: "각", syllables: ["각"], hanjaChars: ["角"], example: "두 변이 만나는 곳에 각이 생겨요." },
+  { id: 3, word: "거리", hanja: "距離", reading: "거리", syllables: ["거", "리"], hanjaChars: ["距", "離"], example: "학교와 집 사이의 거리가 가까워요." },
+  { id: 4, word: "검소", hanja: "儉素", reading: "검소", syllables: ["검", "소"], hanjaChars: ["儉", "素"], example: "물건을 아껴 쓰는 검소한 생활을 해요." },
+  { id: 5, word: "결과", hanja: "結果", reading: "결과", syllables: ["결", "과"], hanjaChars: ["結", "果"], example: "노력한 만큼 좋은 결과를 얻었어요." },
+  { id: 6, word: "계산", hanja: "計算", reading: "계산", syllables: ["계", "산"], hanjaChars: ["計", "算"], example: "물건 값을 계산하려고 지갑을 열었어요." },
+  { id: 7, word: "고민", hanja: "苦悶", reading: "고민", syllables: ["고", "민"], hanjaChars: ["苦", "悶"], example: "어떤 선물을 할지 고민 중이에요." },
+  { id: 8, word: "공손", hanja: "恭遜", reading: "공손", syllables: ["공", "손"], hanjaChars: ["恭", "遜"], example: "어른들께는 공손하게 인사해야 해요." },
+  { id: 9, word: "공통", hanja: "共通", reading: "공통", syllables: ["공", "통"], hanjaChars: ["共", "通"], example: "나와 친구는 축구를 좋아하는 공통점이 있어요." },
+  { id: 10, word: "관찰", hanja: "觀察", reading: "관찰", syllables: ["관", "찰"], hanjaChars: ["觀", "察"], example: "돋보기로 개미의 움직임을 관찰했어요." },
+  { id: 11, word: "구간", hanja: "區間", reading: "구간", syllables: ["구", "간"], hanjaChars: ["區", "間"], example: "공사 중인 구간이 있어 길이 막혀요." },
+  { id: 12, word: "기구", hanja: "器具", reading: "기구", syllables: ["기", "구"], hanjaChars: ["器", "具"], example: "실험 기구를 조심해서 다루어야 해요." },
+  { id: 13, word: "낭송", hanja: "朗誦", reading: "낭송", syllables: ["낭", "송"], hanjaChars: ["朗", "誦"], example: "국어 시간에 좋아하는 시를 낭송했어요." },
+  { id: 14, word: "대화", hanja: "對話", reading: "대화", syllables: ["대", "화"], hanjaChars: ["對", "話"], example: "친구와 즐겁게 대화를 나누었어요." },
+  { id: 15, word: "도형", hanja: "圖形", reading: "도형", syllables: ["도", "형"], hanjaChars: ["圖", "形"], example: "삼각형, 사각형, 원은 모두 도형이에요." },
+  { id: 16, word: "무관심", hanja: "無關心", reading: "무관심", syllables: ["무", "관", "심"], hanjaChars: ["無", "關", "心"], example: "어려운 이웃에게 무관심하지 않고 도와주었어요." },
+  { id: 17, word: "문제", hanja: "問題", reading: "문제", syllables: ["문", "제"], hanjaChars: ["問", "題"], example: "수학 문제를 풀다가 모르는 것이 생겼어요." },
+  { id: 18, word: "물체", hanja: "物體", reading: "물체", syllables: ["물", "체"], hanjaChars: ["物", "體"], example: "자석은 철로 된 물체를 끌어당겨요." },
+  { id: 19, word: "반", hanja: "半", reading: "반", syllables: ["반"], hanjaChars: ["半"], example: "사과를 반으로 나누어 먹었어요." },
+  { id: 20, word: "반성", hanja: "反省", reading: "반성", syllables: ["반", "성"], hanjaChars: ["反", "省"], example: "오늘 친구와 다툰 일을 반성했어요." },
+  { id: 21, word: "발명", hanja: "發明", reading: "발명", syllables: ["발", "명"], hanjaChars: ["發", "明"], example: "에디슨은 전구를 발명했어요." },
+  { id: 22, word: "방법", hanja: "方法", reading: "방법", syllables: ["방", "법"], hanjaChars: ["方", "法"], example: "요리책을 보고 만드는 방법을 배웠어요." },
+  { id: 23, word: "배열", hanja: "配列", reading: "배열", syllables: ["배", "열"], hanjaChars: ["配", "列"], example: "책꽂이에 책을 가나다 순서로 배열했어요." },
+  { id: 24, word: "변", hanja: "邊", reading: "변", syllables: ["변"], hanjaChars: ["邊"], example: "정사각형은 네 변의 길이가 같아요." },
+  { id: 25, word: "분류", hanja: "分類", reading: "분류", syllables: ["분", "류"], hanjaChars: ["分", "類"], example: "재활용 쓰레기를 종류별로 분류해서 버려요." },
+  { id: 26, word: "분리", hanja: "分離", reading: "분리", syllables: ["분", "리"], hanjaChars: ["分", "離"], example: "모래와 자갈을 체로 분리했어요." },
+  { id: 27, word: "분수", hanja: "分數", reading: "분수", syllables: ["분", "수"], hanjaChars: ["分", "數"], example: "피자 한 조각은 전체의 8분의 1 분수예요." },
+  { id: 28, word: "상품", hanja: "賞品", reading: "상품", syllables: ["상", "품"], hanjaChars: ["賞", "品"], example: "글짓기 대회에서 1등을 해서 상품을 받았어요." },
+  { id: 29, word: "수직", hanja: "垂直", reading: "수직", syllables: ["수", "직"], hanjaChars: ["垂", "直"], example: "두 선이 만나서 직각을 이루면 수직이라고 해요." },
+  { id: 30, word: "순서", hanja: "順序", reading: "순서", syllables: ["순", "서"], hanjaChars: ["順", "序"], example: "줄을 서서 순서를 기다려요." },
+  { id: 31, word: "시간", hanja: "時間", reading: "시간", syllables: ["시", "간"], hanjaChars: ["時", "間"], example: "약속 시간을 잘 지키는 것은 중요해요." },
+  { id: 32, word: "식", hanja: "式", reading: "식", syllables: ["식"], hanjaChars: ["式"], example: "수학 문제의 풀이 식을 썼어요." },
+  { id: 33, word: "실천", hanja: "實踐", reading: "실천", syllables: ["실", "천"], hanjaChars: ["實", "踐"], example: "계획한 일을 미루지 않고 실천해요." },
+  { id: 34, word: "실험", hanja: "實驗", reading: "실험", syllables: ["실", "험"], hanjaChars: ["實", "驗"], example: "과학실에서 화산 폭발 실험을 했어요." },
+  { id: 35, word: "안전", hanja: "安全", reading: "안전", syllables: ["안", "전"], hanjaChars: ["安", "全"], example: "안전 벨트를 꼭 매야 해요." },
+  { id: 36, word: "암송", hanja: "暗誦", reading: "암송", syllables: ["암", "송"], hanjaChars: ["暗", "誦"], example: "국민의례 때 국기에 대한 맹세를 암송해요." },
+  { id: 37, word: "역할", hanja: "役割", reading: "역할", syllables: ["역", "할"], hanjaChars: ["役", "割"], example: "연극에서 주인공 역할을 맡았어요." },
+  { id: 38, word: "온도", hanja: "溫度", reading: "온도", syllables: ["온", "도"], hanjaChars: ["溫", "度"], example: "오늘은 기온이 낮아 온도가 많이 떨어졌어요." },
+  { id: 39, word: "우애", hanja: "友愛", reading: "우애", syllables: ["우", "애"], hanjaChars: ["友", "愛"], example: "형제끼리 우애 있게 지내야 해요." },
+  { id: 40, word: "이용", hanja: "利用", reading: "이용", syllables: ["이", "용"], hanjaChars: ["利", "用"], example: "도서관을 이용할 때는 조용히 해야 해요." },
+  { id: 41, word: "이유", hanja: "理由", reading: "이유", syllables: ["이", "유"], hanjaChars: ["理", "由"], example: "학교에 늦은 이유를 선생님께 말씀드렸어요." },
+  { id: 42, word: "이해", hanja: "理解", reading: "이해", syllables: ["이", "해"], hanjaChars: ["理", "解"], example: "친구의 마음을 이해하려고 노력했어요." },
+  { id: 43, word: "일주", hanja: "一周", reading: "일주", syllables: ["일", "주"], hanjaChars: ["一", "周"], example: "운동장을 한 바퀴 일주했어요." },
+  { id: 44, word: "점", hanja: "點", reading: "점", syllables: ["점"], hanjaChars: ["點"], example: "종이에 점을 찍어 선을 그렸어요." },
+  { id: 45, word: "종류", hanja: "種類", reading: "종류", syllables: ["종", "류"], hanjaChars: ["種", "類"], example: "꽃의 종류는 정말 다양해요." },
+  { id: 46, word: "주변", hanja: "周邊", reading: "주변", syllables: ["주", "변"], hanjaChars: ["周", "邊"], example: "우리 학교 주변에는 문구점이 있어요." },
+  { id: 47, word: "차", hanja: "差", reading: "차", syllables: ["차"], hanjaChars: ["差"], example: "두 수의 차를 구하는 뺄셈을 했어요." },
+  { id: 48, word: "차이", hanja: "差異", reading: "차이", syllables: ["차", "이"], hanjaChars: ["差", "異"], example: "나와 동생은 키 차이가 많이 나요." },
+  { id: 49, word: "착륙", hanja: "着陸", reading: "착륙", syllables: ["착", "륙"], hanjaChars: ["着", "陸"], example: "비행기가 공항에 무사히 착륙했어요." },
+  { id: 50, word: "최선", hanja: "最善", reading: "최선", syllables: ["최", "선"], hanjaChars: ["最", "善"], example: "결과보다 최선을 다하는 것이 중요해요." },
+  { id: 51, word: "특징", hanja: "特徵", reading: "특징", syllables: ["특", "징"], hanjaChars: ["特", "徵"], example: "토끼의 특징은 귀가 길다는 점이에요." },
+  { id: 52, word: "평가", hanja: "評價", reading: "평가", syllables: ["평", "가"], hanjaChars: ["評", "價"], example: "단원 평가 시험을 쳤어요." },
+  { id: 53, word: "평소", hanja: "平素", reading: "평소", syllables: ["평", "소"], hanjaChars: ["平", "素"], example: "평소에 운동을 열심히 하면 건강해져요." },
+  { id: 54, word: "표", hanja: "表", reading: "표", syllables: ["표"], hanjaChars: ["表"], example: "조사한 내용을 표로 정리했어요." },
+  { id: 55, word: "표어", hanja: "標語", reading: "표어", syllables: ["표", "어"], hanjaChars: ["標", "語"], example: "불조심 표어를 만들어서 교실에 붙였어요." },
+  { id: 56, word: "표현", hanja: "表現", reading: "표현", syllables: ["표", "현"], hanjaChars: ["表", "現"], example: "고마운 마음을 편지로 표현했어요." },
+  { id: 57, word: "합", hanja: "合", reading: "합", syllables: ["합"], hanjaChars: ["合"], example: "두 수의 합을 구하는 덧셈을 했어요." },
+  { id: 58, word: "혼합물", hanja: "混合物", reading: "혼합물", syllables: ["혼", "합", "물"], hanjaChars: ["混", "合", "物"], example: "팥과 콩이 섞인 혼합물을 분리했어요." },
+  { id: 59, word: "화목", hanja: "和睦", reading: "화목", syllables: ["화", "목"], hanjaChars: ["和", "睦"], example: "우리 가족은 언제나 화목해요." },
+  { id: 60, word: "화학", hanja: "化學", reading: "화학", syllables: ["화", "학"], hanjaChars: ["化", "學"], example: "화학 시간에는 물질의 변화에 대해 배워요." },
+  { id: 61, word: "활용", hanja: "活用", reading: "활용", syllables: ["활", "용"], hanjaChars: ["活", "用"], example: "폐품을 활용해서 장난감을 만들었어요." },
+  { id: 62, word: "효도", hanja: "孝道", reading: "효도", syllables: ["효", "도"], hanjaChars: ["孝", "道"], example: "부모님께 효도하는 착한 어린이가 될래요." }
 ];
 
 export const WORDS_TEXTBOOK_5_JUN = [
@@ -309,7 +375,7 @@ export const WORDS_TEXTBOOK_5_JUN = [
 ];
 
 export const WORDS_TEXTBOOK_5 = [
-{ id: 1, word: "가열", hanja: "加熱", reading: "가열", syllables: ["가", "열"], hanjaChars: ["加", "熱"], example: "음식을 먹기 전에 전자레인지에 가열했어요." },
+  { id: 1, word: "가열", hanja: "加熱", reading: "가열", syllables: ["가", "열"], hanjaChars: ["加", "熱"], example: "음식을 먹기 전에 전자레인지에 가열했어요." },
   { id: 2, word: "가정", hanja: "家庭", reading: "가정", syllables: ["가", "정"], hanjaChars: ["家", "庭"], example: "우리 가정은 웃음이 넘치는 행복한 집이에요." },
   { id: 3, word: "각도", hanja: "角度", reading: "각도", syllables: ["각", "도"], hanjaChars: ["角", "度"], example: "각도기를 사용하여 삼각형의 각도를 쟀어요." },
   { id: 4, word: "강수량", hanja: "降水量", reading: "강수량", syllables: ["강", "수", "량"], hanjaChars: ["降", "水", "量"], example: "여름철 장마 기간에는 강수량이 매우 많아요." },
@@ -403,12 +469,12 @@ export const WORDS_TEXTBOOK_5 = [
   { id: 92, word: "지구촌", hanja: "地球村", reading: "지구촌", syllables: ["지", "구", "촌"], hanjaChars: ["地", "球", "村"], example: "세계는 하나로 연결된 지구촌 가족이에요." },
   { id: 93, word: "지진", hanja: "地震", reading: "지진", syllables: ["지", "진"], hanjaChars: ["地", "震"], example: "지진이 발생하면 책상 밑으로 몸을 피해야 해요." },
   { id: 94, word: "지층", hanja: "地層", reading: "지층", syllables: ["지", "층"], hanjaChars: ["地", "層"], example: "퇴적물이 쌓여서 만들어진 지층을 관찰했어요." },
-  { id: 95, word: "질서", hanja: "秩序", reading: "질서", syllables: ["질", "서"], hanjaChars: ["秩", "序"], example: "공공장소에서는 차례를 지키며 질서를 유지해요." },
+  { id: 95, word: "질서", hanja: "秩序", reading: "질서", syllables: ["질", "서"], hanjaChars: ["秩", "序"], example: "공공장소에서는 질서를 잘 지켜야 해요." },
   { id: 96, word: "참정권", hanja: "參政權", reading: "참정권", syllables: ["참", "정", "권"], hanjaChars: ["參", "政", "權"], example: "투표는 국민이 정치에 참여할 수 있는 참정권의 하나예요." },
   { id: 97, word: "창의적", hanja: "創意的", reading: "창의적", syllables: ["창", "의", "적"], hanjaChars: ["創", "意", "的"], example: "미술 시간에 창의적인 생각으로 그림을 그렸어요." },
   { id: 98, word: "첨단", hanja: "尖端", reading: "첨단", syllables: ["첨", "단"], hanjaChars: ["尖", "端"], example: "스마트폰은 첨단 과학 기술로 만들어졌어요." },
   { id: 99, word: "초과", hanja: "超過", reading: "초과", syllables: ["초", "과"], hanjaChars: ["超", "過"], example: "몸무게가 기준을 초과했어요." },
-  { id: 100, word: "축척", hanja: "縮尺", reading: "축척", syllables: ["축", "척"], hanjaChars: ["縮", "尺"], example: "지도에서 축척을 이용해 실제 거리를 계산했어요." },
+  { id: 100, word: "축척", hanja: "縮尺", reading: "축척", syllables: ["축", "척"], hanjaChars: ["縮", "尺"], example: "지도의 축척을 보면 실제 거리를 알 수 있어요." },
   { id: 101, word: "침엽수", hanja: "針葉樹", reading: "침엽수", syllables: ["침", "엽", "수"], hanjaChars: ["針", "葉", "樹"], example: "소나무는 잎이 바늘처럼 뾰족한 침엽수예요." },
   { id: 102, word: "쾌적", hanja: "快適", reading: "쾌적", syllables: ["쾌", "적"], hanjaChars: ["快", "適"], example: "창문을 열어 환기를 하니 공기가 쾌적해졌어요." },
   { id: 103, word: "타협", hanja: "妥協", reading: "타협", syllables: ["타", "협"], hanjaChars: ["妥", "協"], example: "친구와 서로 양보하며 타협했어요." },
