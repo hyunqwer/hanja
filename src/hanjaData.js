@@ -38,7 +38,7 @@ export const HANJA_LEVEL_8 = [
   { id: 27, char: '土', sound: '흙', meaning: '토' },
   { id: 28, char: '八', sound: '여덟', meaning: '팔' },
   { id: 29, char: '兄', sound: '맏', meaning: '형' },
-  { id: 30, char: '火', sound: '불', meaning: '화' },
+  { id: 30, char: '火', sound: '불', meaning: '화' }
 ];
 
 // 7급 (20자)
@@ -62,7 +62,7 @@ export const HANJA_LEVEL_7 = [
   { id: 47, char: '中', sound: '가운데', meaning: '중' },
   { id: 48, char: '靑', sound: '푸를', meaning: '청' },
   { id: 49, char: '出', sound: '날', meaning: '출' },
-  { id: 50, char: '下', sound: '아래', meaning: '하' },
+  { id: 50, char: '下', sound: '아래', meaning: '하' }
 ];
 
 // 6급 (20자)
@@ -86,7 +86,7 @@ export const HANJA_LEVEL_6 = [
   { id: 67, char: '地', sound: '땅', meaning: '지' },
   { id: 68, char: '川', sound: '내', meaning: '천' },
   { id: 69, char: '千', sound: '일천', meaning: '천' },
-  { id: 70, char: '天', sound: '하늘', meaning: '천' },
+  { id: 70, char: '天', sound: '하늘', meaning: '천' }
 ];
 
 // 준5급 (81자)
@@ -120,7 +120,7 @@ export const HANJA_LEVEL_5_JUN = [
   { id: 97, char: '主', sound: '주인', meaning: '주' },
   { id: 98, char: '寸', sound: '마디', meaning: '촌' },
   { id: 99, char: '向', sound: '향할', meaning: '향' },
-  { id: 100, char: '休', sound: '쉴', meaning: '휴' },
+  { id: 100, char: '休', sound: '쉴', meaning: '휴' }
 ];
 
 // 5급 (110자)
@@ -274,7 +274,7 @@ export const HANJA_LEVEL_5 = [
   { id: 247, char: '黃', sound: '누를', meaning: '황' },
   { id: 248, char: '會', sound: '모일', meaning: '회' },
   { id: 249, char: '孝', sound: '효도', meaning: '효' },
-  { id: 250, char: '後', sound: '뒤', meaning: '후' },
+  { id: 250, char: '後', sound: '뒤', meaning: '후' }
 ];
 
 // ----------------------------------------------------------------------
