@@ -315,7 +315,7 @@ export const WORDS_TEXTBOOK_7 = [
   { id: 15, word: "수족", hanja: "手足", reading: "수족", syllables: ["수", "족"], hanjaChars: ["手", "足"], example: "그는 부하들을 자신의 수족처럼 믿고 맡겼다." },
   { id: 16, word: "북서", hanja: "北西", reading: "북서", syllables: ["북", "서"], hanjaChars: ["北", "西"], example: "바람이 북서쪽에서 불어왔다." },
   { id: 17, word: "출토", hanja: "出土", reading: "출토", syllables: ["출", "토"], hanjaChars: ["出", "土"], example: "유적지에서 오래된 유물이 출토되었다." },
-  { id: 18, word: "출", hanja: "出", reading: "출", syllables: ["출"], hanjaChars: ["出"], example: "입구와 출을 잘 구분해야 한다." },
+  { id: 18, word: "출구", hanja: "出口", reading: "출구", syllables: ["출", "구"], hanjaChars: ["出", "口"], example: "입구와 출구를 잘 구분해야 한다." },
   { id: 19, word: "동남", hanja: "東南", reading: "동남", syllables: ["동", "남"], hanjaChars: ["東", "南"], example: "학교는 마을의 동남쪽에 위치해 있다." },
   { id: 20, word: "부모", hanja: "父母", reading: "부모", syllables: ["부", "모"], hanjaChars: ["父", "母"], example: "부모의 사랑은 언제나 깊고 변함없다." },
   { id: 21, word: "일금", hanja: "一金", reading: "일금", syllables: ["일", "금"], hanjaChars: ["一", "金"], example: "일금 삼만 원을 용돈으로 받았다." }
